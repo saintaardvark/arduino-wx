@@ -22,8 +22,6 @@ void setup() {
 }
 
 void loop() {
-
-  transmitter.resend((byte *)msg, strlen(msg) + 1);
         digitalWrite(LEDPIN, HIGH);
         delay(500);
         digitalWrite(LEDPIN, LOW);
@@ -41,6 +39,8 @@ void loop() {
         Serial.print("Temp: ");
         Serial.print(t);
         Serial.println();
+        // transmitter.send((byte *)msg, strlen(msg) + 1);
+        //transmitter.send(textmsg, textmsg.length());
         digitalWrite(LEDPIN, HIGH);
         delay(125);
         digitalWrite(LEDPIN, LOW);
@@ -50,5 +50,7 @@ void loop() {
         digitalWrite(LEDPIN, LOW);
         delay(125);
         delay(1000);
+
+        // transmitter.resend((byte *)msg, strlen(msg) + 1);
 
 }
