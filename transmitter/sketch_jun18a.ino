@@ -22,10 +22,6 @@ void setup() {
 }
 
 void loop() {
-  //char *msg = "Hello World!        ";
-  char *msg;
-  sprintf((char *)msg, "Hello, world!  T: %d H: %f", t, h);
-  //String textmsg = "Hello, world! Temp: ";
 
   transmitter.resend((byte *)msg, strlen(msg) + 1);
         digitalWrite(LEDPIN, HIGH);
@@ -34,7 +30,11 @@ void loop() {
         float h = dht.readHumidity();
         // Read temperature as Celsius (the default)
         float t = dht.readTemperature();
+        char *msg = "Hello World!        ";
         //char *msg = malloc(strlen(printf("Hello, world! T: %f H: %f", t, h)));
+        // char *msg;
+        // sprintf(msg, "Hello, world!  T: %f H: %f", t, h);
+        //String textmsg = "Hello, world! Temp: ";
         Serial.println("I'm here...");
         Serial.print("Humidity: ");
         Serial.print(h);
