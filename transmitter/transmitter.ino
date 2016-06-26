@@ -1,11 +1,3 @@
-
-// Note to self:
-// - keep gettin NAN with dtostrf & transmit...not sure what's happening
-//
-// Package: 43
-// Sender: 1
-// Message:  NAN
-
 #include <RFTransmitter.h>
 
 #include "DHT.h"
