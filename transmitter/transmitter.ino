@@ -1,3 +1,11 @@
+
+// Note to self:
+// - keep gettin NAN with dtostrf & transmit...not sure what's happening
+//
+// Package: 43
+// Sender: 1
+// Message:  NAN
+
 #include <RFTransmitter.h>
 
 #include "DHT.h"
@@ -28,7 +36,10 @@ void loop() {
         float h = dht.readHumidity();
         // Read temperature as Celsius (the default)
         float t = dht.readTemperature();
-        char *msg = "Hello World!        ";
+        char *msg = "Hello World!";
+        char hmsg[10];
+        // args: (src, width, precision, dest)
+        dtostrf(h, 4, 2, hmsg);
         //char *msg = malloc(strlen(printf("Hello, world! T: %f H: %f", t, h)));
         // char *msg;
         // sprintf(msg, "Hello, world!  T: %f H: %f", t, h);
@@ -39,7 +50,8 @@ void loop() {
         Serial.print("Temp: ");
         Serial.print(t);
         Serial.println();
-        transmitter.send((byte *)msg, strlen(msg) + 1);
+        // transmitter.send((byte *)msg, strlen(msg) + 1);
+        transmitter.send((byte *)hmsg, strlen(hmsg) + 1);
         //transmitter.send(textmsg, textmsg.length());
         digitalWrite(LEDPIN, HIGH);
         delay(125);
@@ -50,5 +62,6 @@ void loop() {
         digitalWrite(LEDPIN, LOW);
         delay(125);
         delay(1000);
-        transmitter.resend((byte *)msg, strlen(msg) + 1);
+        // transmitter.resend((byte *)msg, strlen(msg) + 1);
+        transmitter.resend((byte *)hmsg, strlen(hmsg) + 1);
 }
