@@ -8,11 +8,11 @@
 DHT dht(DHTPIN, DHTTYPE);
 
 #define NODE_ID          1
-#define OUTPUT_PIN       11
+#define TRANSMITTER_PIN  11
 #define LEDPIN           13
 
 // Send on digital pin 11 and identify as node 1
-RFTransmitter transmitter(OUTPUT_PIN, NODE_ID);
+RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
 void setup() {
         Serial.begin(9600);
