@@ -1,5 +1,7 @@
 #include <RFTransmitter.h>
-
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP085_U.h>
 #include "DHT.h"
 
 #define DHTPIN 2     // what digital pin we're connected to
@@ -14,10 +16,22 @@ DHT dht(DHTPIN, DHTTYPE);
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
+// Example code from https://learn.adafruit.com/bmp085?view=all
+// Thanks, AdaFruit!
+Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
+
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
         dht.begin();
+        Serial.println("Pressure Sensor Test");
+        Serial.println("");
+        /* Initialise the sensor */
+        if(!bmp.begin()) {
+                /* There was a problem detecting the BMP085 ... check your connections */
+                Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
+                while(1);
+        }
 
 }
 
@@ -28,6 +42,17 @@ void loop() {
         float h = dht.readHumidity();
         // Read temperature as Celsius (the default)
         float t = dht.readTemperature();
+        /* Get a new sensor event */
+        sensors_event_t event;
+        bmp.getEvent(&event);
+        if (event.pressure) {
+                /* Display atmospheric pressure in hPa */
+                Serial.print("Pressure: "); Serial.print(event.pressure); Serial.println(" hPa");
+        }
+        else {
+                Serial.println("Sensor error");
+        }
+
         char *msg = "Hello World!";
         char hmsg[10];
         // args: (src, width, precision, dest)
