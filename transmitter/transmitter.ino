@@ -33,11 +33,9 @@ char tmsg[6];
 char pmsg[8];
 sensors_event_t event;
 
+int counter = 0;
+
 void flashyflashy() {
-        digitalWrite(LEDPIN, HIGH);
-        delay(125);
-        digitalWrite(LEDPIN, LOW);
-        delay(125);
         digitalWrite(LEDPIN, HIGH);
         delay(125);
         digitalWrite(LEDPIN, LOW);
@@ -59,9 +57,6 @@ void setup() {
 }
 
 void loop() {
-        digitalWrite(LEDPIN, HIGH);
-        delay(500);
-        digitalWrite(LEDPIN, LOW);
         h = dht.readHumidity();
         // 12.45\0
         hmsg[6];
@@ -76,15 +71,15 @@ void loop() {
         /* Get a new sensor event */
         //
         bmp.getEvent(&event);
-        if (event.pressure) {
-                /* Display atmospheric pressure in hPa */
-                Serial.print("Pressure: ");
-                Serial.print(event.pressure);
-                Serial.println(" hPa");
-        }
-        else {
-                Serial.println("Sensor error");
-        }
+        // if (event.pressure) {
+        //         /* Display atmospheric pressure in hPa */
+        //         Serial.print("Pressure: ");
+        //         Serial.print(event.pressure);
+        //         Serial.println(" hPa");
+        // }
+        // else {
+        //         Serial.println("Sensor error");
+        // }
 
         // 1234.67\0
         dtostrf(event.pressure, 6, 2, pmsg);
@@ -111,18 +106,14 @@ void loop() {
         // char *msg;
         // sprintf(msg, "Hello, world!  T: %f H: %f", t, h);
         //String textmsg = "Hello, world! Temp: ";
-        Serial.println("I'm here...");
-        Serial.print("Humidity: ");
-        Serial.print(h);
-        Serial.print(" Temp: ");
-        Serial.print(t);
-        Serial.println();
         Serial.println(final_msg);
         // transmitter.send((byte *)msg, strlen(msg) + 1);
         transmitter.send((byte *)final_msg, strlen(final_msg) + 1);
+        Serial.print("That was message #");
+        Serial.println(counter);
         //transmitter.send(textmsg, textmsg.length());
         flashyflashy();
         delay(1000);
         // transmitter.resend((byte *)msg, strlen(msg) + 1);
-        transmitter.resend((byte *)final_msg, strlen(final_msg) + 1);
+        // transmitter.resend((byte *)final_msg, strlen(final_msg) + 1);
 }

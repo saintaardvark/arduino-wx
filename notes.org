@@ -1,0 +1,9 @@
+* <2016-07-10 Sun>
+  - so it turns out the transmitter is continuously resetting itself.
+    If I add a debug statement, I can see that it gets as far as the
+    second loop before resetting; the serial port shows the pressure
+    sensor test again & again.
+    -
+      http://stackoverflow.com/questions/22647210/what-can-cause-arduino-to-continuously-restart
+      suggests memory, which seems likely given the number of
+      libraries I'm including.
