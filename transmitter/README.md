@@ -1,3 +1,9 @@
+# Measurements
+
+- Temp & humidity come from the DHT22
+- Air pressure comes from the BMP85
+
+
 # Diagram
 
 - Humidity: Pin 2
