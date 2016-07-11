@@ -3,7 +3,8 @@
     If I add a debug statement, I can see that it gets as far as the
     second loop before resetting; the serial port shows the pressure
     sensor test again & again.
-    -
-      http://stackoverflow.com/questions/22647210/what-can-cause-arduino-to-continuously-restart
+    - http://stackoverflow.com/questions/22647210/what-can-cause-arduino-to-continuously-restart
       suggests memory, which seems likely given the number of
       libraries I'm including.
+    - Maybe accidentally hitting the reset pin from software?
+      https://www.element14.com/community/thread/31916/l/help-my-processing-code-is-restarting-my-arduino-code?displayFullThread=true
