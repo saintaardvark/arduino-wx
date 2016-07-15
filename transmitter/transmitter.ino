@@ -1,7 +1,15 @@
 #include <RFTransmitter.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
+
+// Barometer / Temp
+// Example code from https://learn.adafruit.com/bmp085?view=all
+// Thanks, AdaFruit!
 #include <Adafruit_BMP085_U.h>
+Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
+sensors_event_t event;
+
+// Humidity sensor
 #include "DHT.h"
 #include <string.h>
 
@@ -17,9 +25,6 @@ DHT dht(DHTPIN, DHTTYPE);
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
-// Example code from https://learn.adafruit.com/bmp085?view=all
-// Thanks, AdaFruit!
-Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 
 char *hlegend = "H: ";
 char *tlegend = "T: ";
