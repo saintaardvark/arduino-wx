@@ -48,7 +48,6 @@ void VWTX(String VWMsgStr) {
         digitalWrite(13, true); // Flash a light to show transmitting
         transmitter.send((byte *)VWMsgBuf, VWMsgBufLen);
         digitalWrite(13, false); // Flash a light to show transmitting
-        Serial.println(VWMsgBufLen);
 }
 
 void setup() {
@@ -81,12 +80,15 @@ void loop() {
         final_msg_string += "Temp: " + String(t) + " C , ";
         final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
         final_msg_string += "Humid: " + String(h) + "%|";
-        Serial.println(final_msg_string);
 
         VWTX(final_msg_string);
 
+        Serial.println(final_msg_string);
+        Serial.print("Message length: ");
+        Serial.println(final_msg_string.length());
         Serial.print("Loop #");
         Serial.println(counter);
+
         counter++;
         delay(1000);
 }
