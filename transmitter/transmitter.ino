@@ -16,9 +16,9 @@ sensors_event_t event;
 const byte MAX_PAYLOAD_SIZE = 80;
 char VWMsgBuf[MAX_PAYLOAD_SIZE];
 String final_msg_string;
+
 #define DHTPIN 2     // what digital pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
-
 DHT dht(DHTPIN, DHTTYPE);
 
 #define NODE_ID          1
@@ -54,10 +54,14 @@ void VWTX(String VWMsgStr) {
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
+        Serial.println("Reboot");
+        Serial.println("dht.begin");
         dht.begin();
+
+        /* Initialise the sensor */
+
         Serial.println("Pressure Sensor Test");
         Serial.println("");
-        /* Initialise the sensor */
         if(!bmp.begin()) {
                 /* There was a problem detecting the BMP085 ... check your connections */
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
@@ -80,9 +84,6 @@ void loop() {
 
         Serial.print("Loop #");
         Serial.println(counter);
-        //transmitter.send(textmsg, textmsg.length());
-        flashyflashy();
+        counter++;
         delay(1000);
-        // transmitter.resend((byte *)msg, strlen(msg) + 1);
-        // transmitter.resend((byte *)final_msg, strlen(final_msg) + 1);
 }
