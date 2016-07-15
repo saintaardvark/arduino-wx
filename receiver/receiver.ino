@@ -16,12 +16,6 @@ void loop() {
   byte packageId = 0;
   byte len = receiver.recvPackage((byte *)msg, &senderId, &packageId);
 
-  // Serial.println("");
-  // Serial.print("Package: ");
-  // Serial.println(packageId);
-  // Serial.print("Sender: ");
-  // Serial.println(senderId);
-  // Serial.println("Message: ");
   Serial.println(msg);
 
 }
