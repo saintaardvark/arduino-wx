@@ -11,8 +11,11 @@ sensors_event_t event;
 
 // Humidity sensor
 #include "DHT.h"
-#include <string.h>
 
+// Copied from RFReceiver.h
+const byte MAX_PAYLOAD_SIZE = 80;
+char VWMsgBuf[MAX_PAYLOAD_SIZE];
+String final_msg_string;
 #define DHTPIN 2     // what digital pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 
@@ -25,18 +28,8 @@ DHT dht(DHTPIN, DHTTYPE);
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
-
-char *hlegend = "H: ";
-char *tlegend = "T: ";
-char *plegend = "P: ";
-
 float h;
 float t;
-
-char hmsg[6];
-char tmsg[6];
-char pmsg[8];
-sensors_event_t event;
 
 int counter = 0;
 
@@ -74,58 +67,18 @@ void setup() {
 
 void loop() {
         h = dht.readHumidity();
-        // 12.45\0
-        hmsg[6];
-        // args: (src, width, precision, dest)
-        dtostrf(h, 4, 2, hmsg);
-        // Read temperature as Celsius (the default)
         t = dht.readTemperature();
-        // 12.45\0
-        tmsg[6];
-        // args: (src, width, precision, dest)
-        dtostrf(t, 4, 2, tmsg);
-        /* Get a new sensor event */
-        //
-        bmp.getEvent(&event);
-        // if (event.pressure) {
-        //         /* Display atmospheric pressure in hPa */
-        //         Serial.print("Pressure: ");
-        //         Serial.print(event.pressure);
-        //         Serial.println(" hPa");
-        // }
-        // else {
-        //         Serial.println("Sensor error");
-        // }
 
-        // 1234.67\0
-        dtostrf(event.pressure, 6, 2, pmsg);
-        // now combine.  See https://www.reddit.com/r/arduino/comments/2zzd41/need_help_combining_2_char_arrays/
-        char final_msg[sizeof(tlegend) +
-                       sizeof(tmsg) +
-                       1 +      // " "
-                       sizeof(hlegend) +
-                       sizeof(hmsg) +
-                       1 +      // " "
-                       sizeof(plegend) +
-                       sizeof(pmsg)
-                       ];
-        strcat(final_msg, tlegend);
-        strcat(final_msg, tmsg);
-        strcat(final_msg, " ");
-        strcat(final_msg, hlegend);
-        strcat(final_msg, hmsg);
-        strcat(final_msg, " ");
-        strcat(final_msg, plegend);
-        strcat(final_msg, pmsg);
-        // char *msg = "Hello World!";
-        //char *msg = malloc(strlen(printf("Hello, world! T: %f H: %f", t, h)));
-        // char *msg;
-        // sprintf(msg, "Hello, world!  T: %f H: %f", t, h);
-        //String textmsg = "Hello, world! Temp: ";
-        Serial.println(final_msg);
-        // transmitter.send((byte *)msg, strlen(msg) + 1);
-        transmitter.send((byte *)final_msg, strlen(final_msg) + 1);
-        Serial.print("That was message #");
+        bmp.getEvent(&event);
+
+        final_msg_string = "Temp: " + String(t) + " C , ";
+        final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
+        final_msg_string += "Humid: " + String(h) + "%|";
+        Serial.println(final_msg_string);
+
+        VWTX(final_msg_string);
+
+        Serial.print("Loop #");
         Serial.println(counter);
         //transmitter.send(textmsg, textmsg.length());
         flashyflashy();
