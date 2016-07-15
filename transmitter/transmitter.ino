@@ -75,7 +75,10 @@ void loop() {
 
         bmp.getEvent(&event);
 
-        final_msg_string = "Temp: " + String(t) + " C , ";
+        // Doesn't seem to be an easy way to get the NODE_ID out on
+        // the receiving end...
+        final_msg_string = "Node: " + String(NODE_ID) + " , ";
+        final_msg_string += "Temp: " + String(t) + " C , ";
         final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
         final_msg_string += "Humid: " + String(h) + "%|";
         Serial.println(final_msg_string);
