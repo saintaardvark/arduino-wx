@@ -47,6 +47,17 @@ void flashyflashy() {
         delay(125);
 }
 
+// Thanks, linhartr22!
+// https://github.com/linhartr22/433_MHz_Wireless_TX-RX_Demo/blob/master/TX_Temp_Test/TX_Temp_Test.ino#L80-L88
+void VWTX(String VWMsgStr) {
+        VWMsgStr.toCharArray(VWMsgBuf, MAX_PAYLOAD_SIZE);
+        uint8_t VWMsgBufLen = strlen(VWMsgBuf);
+        digitalWrite(13, true); // Flash a light to show transmitting
+        transmitter.send((byte *)VWMsgBuf, VWMsgBufLen);
+        digitalWrite(13, false); // Flash a light to show transmitting
+        Serial.println(VWMsgBufLen);
+}
+
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
