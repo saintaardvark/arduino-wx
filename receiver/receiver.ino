@@ -3,6 +3,9 @@
 
 // Listen on digital pin 2
 RFReceiver receiver(2);
+String payload;
+const char endOfMessage = '|';
+int index;
 
 void setup() {
   Serial.begin(9600);
@@ -15,7 +18,8 @@ void loop() {
   byte senderId = 0;
   byte packageId = 0;
   byte len = receiver.recvPackage((byte *)msg, &senderId, &packageId);
-
-  Serial.println(msg);
-
+  payload = String(msg);
+  index = payload.indexOf(endOfMessage);
+  payload.remove(index);
+  Serial.println(payload);
 }
