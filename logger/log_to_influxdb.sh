@@ -14,25 +14,32 @@ read_line() {
 
 send_to_influxdb() {
     TMPFILE=$(/bin/mktemp)
-    NODE=$1;
-    TEMP=$2;
-    PRES=$3
-    HUMID=$4
-    echo "temp,location=${NODE},host=arduino-${NODE} value=${TEMP}" > $TMPFILE
-    echo "pressure,location=${NODE},host=arduino-${NODE} value=${PRES}" >> $TMPFILE
-    echo "humidity,location=${NODE},host=arduino-${NODE} value=${HUMID}" >> $TMPFILE
+    NODE=$1
+    shift
+    LINE=$*
+    OIFS=$IFS
+    IFS=","
+    for measurement in $LINE ; do
+        if [[ $measurement == "Node"* ]] ; then
+            continue
+        fi
+        measurement=$(echo $measurement | tr -d ":" | tr '[:upper:]' '[:lower:]')
+        echo $measurement | awk -v"NODE=${NODE}" '{print $1 ",location=" NODE ",host=arduino-" NODE " value=" $2}' >> $TMPFILE
+    done
     curl --silent \
          --request POST \
          "${INFLUX_URL}/write?db=${DB}" \
          --data-binary @${TMPFILE}
     rm $TMPFILE
+    IFS=$OIFS
 }
 
+get_node() {
+    echo $* | awk '{print $2}'
+}
+
+# LINE=$SAMPLE_LINE
 LINE=$(read_line)
 
-NODE=$(echo $LINE | awk '{print $2}')
-TEMP=$(echo $LINE | awk '{print $5}')
-PRES=$(echo $LINE | awk '{print $9}')
-HUMID=$(echo $LINE | awk '{print $13}' | tr -d '%')
-
-send_to_influxdb $NODE $TEMP $PRES $HUMID
+NODE=$(get_node $LINE)
+send_to_influxdb $NODE $LINE
