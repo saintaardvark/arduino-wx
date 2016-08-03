@@ -28,6 +28,7 @@ send_to_influxdb() {
     done
     curl --silent \
          --request POST \
+         -u ${INFLUX_USER}:${INFLUX_PASS} \
          "${INFLUX_URL}/write?db=${DB}" \
          --data-binary @${TMPFILE}
     rm $TMPFILE
