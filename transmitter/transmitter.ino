@@ -24,12 +24,14 @@ DHT dht(DHTPIN, DHTTYPE);
 #define NODE_ID          1
 #define TRANSMITTER_PIN  11
 #define LEDPIN           13
+#define PRECIP_PIN       A0
 
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
 float h;
 float t;
+int precip;
 
 int counter = 0;
 
@@ -73,6 +75,7 @@ void loop() {
         t = dht.readTemperature();
 
         bmp.getEvent(&event);
+        precip = 1023 - analogRead(PRECIP_PIN);
 
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
@@ -80,6 +83,7 @@ void loop() {
         final_msg_string += "Temp: " + String(t) + " C , ";
         final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
         final_msg_string += "Humid: " + String(h) + "%|";
+        final_msg_string += "Precip: " + String(precip) + " , ";
 
         VWTX(final_msg_string);
 
