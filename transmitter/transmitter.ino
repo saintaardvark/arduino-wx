@@ -82,7 +82,7 @@ void loop() {
         final_msg_string += "Temp: " + String(temp) + " C , ";
         final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
         final_msg_string += "Precip: " + String(precip) + " , ";
-        final_msg_string += "Humid: " + String(humid) + "%|";
+        final_msg_string += "Humid: " + String(humid) + " %|";
 
         VWTX(final_msg_string);
 
