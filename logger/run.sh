@@ -2,6 +2,8 @@
 
 INFLUX_URL=${INFLUX_URL:https://saintaardvarkthecarpeted.com:26472}
 INFLUX_DB=${INFLUX_DB:weather}
+PATH=/bin:/usr/bin:/usr/local/bin/
+
 
 if [[ -z $INFLUX_USER ]] ; then
     echo "INFLUX_USER unset!"
