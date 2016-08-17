@@ -13,10 +13,23 @@ elif [[ -z $INFLUX_PASS ]] ; then
     exit 1
 fi
 
+ENV_FILE=$(mktemp)
+trap "rm $ENV_FILE; exit" SIGHUP SIGINT SIGTERM
+
+cat << EOF > $ENV_FILE
+INFLUX_USER=$INFLUX_USER
+INFLUX_PASS=$INFLUX_PASS
+INFLUX_URL=$INFLUX_URL
+INFLUX_DB=$INFLUX_DB
+EOF
+
+
+
 docker run \
-       -e INFLUX_USER=${INFLUX_USER} \
-       -e INFLUX_PASS=${INFLUX_PASS} \
-       -e INFLUX_URL=\"${INFLUX_URL}\" \
-       -e INFLUX_DB=${INFLUX_DB} \
+       --env-file=$ENV_FILE \
        --device=/dev/ttyACM0 \
+       --detach=true \
+       --name=arduino_wx \
        arduino_wx
+
+rm $ENV_FILE
