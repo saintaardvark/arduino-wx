@@ -36,7 +36,6 @@ VERBOSE=
 # Sample curl command to log to InfluxDB:
 # curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary 'cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000'
 # Sample line from th emonitor
-SAMPLE_LINE="Node: 1 , Temp: 20.80 C , Pres: 1013.83 hPA , Humid: 61.50%"
 SAMPLE_LINE='Node: 1 , Temp: 22.70 C , Pres: 1010.20 hPA , Precip: 0 , Humid: 60.00 %'
 
 usage() {
@@ -104,7 +103,7 @@ get_node() {
 }
 
 read_and_log() {
-    if [[ $1 ]] ; then
+    if [[ $1 = 1 ]] ; then
         LINE=$SAMPLE_LINE
     else
         LINE=$(read_line)
