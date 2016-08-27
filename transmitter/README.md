@@ -9,5 +9,5 @@
 - Precip detector: A0
 - Humidity: Pin 2
 - Transmitter: Pin 11
-- Barometer SCL: A5
-- Barometer SDA: A1
+- BMP180 (Barometer) SCL: A5
+- BMP180 (Barometer) SDA: A4
