@@ -112,7 +112,7 @@ read_and_log() {
     send_to_influxdb $NODE $LINE
 }
 
-while getopts "tsvh" OPTION ; do
+while getopts "ts:vh" OPTION ; do
      case $OPTION in
          t) TEST_ONCE=1 ; VERBOSE=1 ;;
          v) VERBOSE=1 ;;
