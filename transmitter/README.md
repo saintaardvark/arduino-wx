@@ -6,7 +6,7 @@
 
 # Diagram
 
-- Precip detector: A0
+- Precip detector (A0 pin on sensor): A0
 - Humidity: Pin 2
 - Transmitter: Pin 11
 - BMP180 (Barometer) SCL: A5
