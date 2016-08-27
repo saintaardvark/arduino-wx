@@ -23,7 +23,7 @@ INFLUX_URL=$INFLUX_URL
 INFLUX_DB=$INFLUX_DB
 EOF
 
-
+docker rm arduino_wx
 
 docker run \
        --env-file=$ENV_FILE \
