@@ -26,6 +26,10 @@ DHT dht(DHTPIN, DHTTYPE);
 #define LEDPIN           13
 #define PRECIP_PIN       A0
 
+// Needed for JSON serialization
+#define MAX_SENSORS 5
+#define NODEDATA_JSON_SIZE (JSON_OBJECT_SIZE(1 + MAX_SENSORS * 3))
+
 struct SensorData {
         const char* name;
         const char* units;
