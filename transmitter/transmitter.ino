@@ -22,7 +22,6 @@ String final_msg_string;
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
-#define NODE_ID          1
 #define TRANSMITTER_PIN  11
 #define LEDPIN           13
 #define PRECIP_PIN       A0
@@ -38,6 +37,7 @@ struct NodeData {
         SensorData data[MAX_SENSORS];
 };
 
+#define NODE_ID          1
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
