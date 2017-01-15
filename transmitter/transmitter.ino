@@ -93,6 +93,32 @@ void loop() {
         bmp.getEvent(&event);
         precip = 1023 - analogRead(PRECIP_PIN);
 
+
+        SensorData humid_data;
+        SensorData temp_data;
+        SensorData pres_data;
+        SensorData precip_data;
+
+        humid_data.name = "humid";
+        humid_data.units = "%";
+        humid_data.value = humid;
+
+        temp_data.name = "temp";
+        temp_data.units = "C";
+        temp_data.value = temp;
+
+        pres_data.name = "pressure";
+        pres_data.units = "hPA";
+        pres_data.value = event.pressure;
+
+        precip_data.name = "precip";
+        precip_data.units = "none";
+        precip_data.value = precip;
+
+        node.data[0] = &humid_data;
+        node.data[1] = &temp_data;
+        node.data[2] = &pres_data;
+        node.data[3] = &precip_data;
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
         final_msg_string = "Node: " + String(NODE_ID) + " , ";
