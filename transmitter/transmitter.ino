@@ -42,6 +42,8 @@ struct NodeData {
 };
 
 #define NODE_ID          1
+NodeData node;
+
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
@@ -102,7 +104,6 @@ void loop() {
         temp = dht.readTemperature();
         bmp.getEvent(&event);
         precip = 1023 - analogRead(PRECIP_PIN);
-
 
         SensorData humid_data;
         SensorData temp_data;
