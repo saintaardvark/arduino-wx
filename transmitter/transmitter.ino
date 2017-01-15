@@ -84,6 +84,7 @@ void setup() {
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
                 while(1);
         }
+        node.name = (char*) NODE_ID;
 }
 
 void loop() {
