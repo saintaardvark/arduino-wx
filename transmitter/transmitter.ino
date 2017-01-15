@@ -143,9 +143,13 @@ void loop() {
 
         VWTX(final_msg_string);
 
-        Serial.println(final_msg_string);
-        Serial.print("Message length: ");
-        Serial.println(final_msg_string.length());
+        /* Serial.println(final_msg_string); */
+        /* Serial.print("Message length: "); */
+        /* Serial.println(final_msg_string.length()); */
+        /* Serial.print("Loop #"); */
+        /* Serial.println(counter); */
+
+        Serial.println(json_for_serial);
         Serial.print("Loop #");
         Serial.println(counter);
 
