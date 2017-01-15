@@ -27,6 +27,17 @@ DHT dht(DHTPIN, DHTTYPE);
 #define LEDPIN           13
 #define PRECIP_PIN       A0
 
+struct SensorData {
+        const char* name;
+        const char* units;
+        float value;
+};
+
+struct NodeData {
+        const char* name;
+        SensorData data[MAX_SENSORS];
+};
+
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
