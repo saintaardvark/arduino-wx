@@ -38,7 +38,7 @@ struct SensorData {
 
 struct NodeData {
         const char* name;
-        SensorData data[MAX_SENSORS];
+        SensorData *data[MAX_SENSORS];
 };
 
 #define NODE_ID          1
