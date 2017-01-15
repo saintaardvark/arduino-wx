@@ -58,6 +58,16 @@ void flashyflashy() {
         delay(125);
 }
 
+// Thanks, bblanchon!
+// https://github.com/bblanchon/ArduinoJson/wiki/FAQ#whats-the-best-way-to-use-the-library
+void serialize(const NodeData& node, char* json, size_t maxSize) {
+        StaticJsonBuffer<NODEDATA_JSON_SIZE> jsonBuffer;
+        JsonObject& root = jsonBuffer.createObject();
+        root["name"] = node.name;
+        root["data"] = node.data;
+        root.printTo(json, maxSize);
+}
+
 // Thanks, linhartr22!
 // https://github.com/linhartr22/433_MHz_Wireless_TX-RX_Demo/blob/master/TX_Temp_Test/TX_Temp_Test.ino#L80-L88
 void VWTX(String VWMsgStr) {
@@ -119,6 +129,9 @@ void loop() {
         node.data[1] = &temp_data;
         node.data[2] = &pres_data;
         node.data[3] = &precip_data;
+
+        char json_for_serial[NODEDATA_JSON_SIZE];
+        serialize(node, json_for_serial, NODEDATA_JSON_SIZE);
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
         final_msg_string = "Node: " + String(NODE_ID) + " , ";
