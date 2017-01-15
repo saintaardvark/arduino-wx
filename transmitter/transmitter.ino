@@ -1,6 +1,7 @@
 #include <RFTransmitter.h>
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
+#include <ArduinoJson.h>
 
 // Barometer / Temp
 // Example code from https://learn.adafruit.com/bmp085?view=all
