@@ -66,7 +66,18 @@ void serialize(const NodeData& node, char* json, size_t maxSize) {
         StaticJsonBuffer<NODEDATA_JSON_SIZE> jsonBuffer;
         JsonObject& root = jsonBuffer.createObject();
         root["name"] = node.name;
-        root["data"] = node.data;
+        JsonArray& data = root.createNestedArray("data");
+        int i;
+        for (i=0; i <= MAX_SENSORS; i++) {
+                JsonObject& measurement = data.createNestedObject();
+                measurement["name"] = node.data[i]->name;
+                measurement["value"] = node.data[i]->value;
+                measurement["units"] = node.data[i]->units;
+                /* Serial.println("FIXME: From within serialize:"); */
+                /* Serial.println(node.data[i]->name); */
+                /* Serial.println(node.data[i]->value); */
+                /* Serial.println(node.data[i]->units); */
+        }
         root.printTo(json, maxSize);
 }
 
