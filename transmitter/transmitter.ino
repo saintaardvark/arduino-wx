@@ -62,7 +62,8 @@ NodeData node;
 
 #define SLEEPYTIME 10000
 
-#define DEBUGGING 1
+/* Set to 1 for helpful debug messages */
+#define DEBUGGING 0
 
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
