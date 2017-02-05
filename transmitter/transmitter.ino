@@ -3,12 +3,17 @@
 #include <Adafruit_Sensor.h>
 #include <ArduinoJson.h>
 
+/* Uncomment if you have a BMP sensor */
+/* #define HAVE_BMP 1 */
+
+# ifdef HAVE_BMP
 // Barometer / Temp
 // Example code from https://learn.adafruit.com/bmp085?view=all
 // Thanks, AdaFruit!
 #include <Adafruit_BMP085_U.h>
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 sensors_event_t event;
+#endif
 
 // Humidity sensor
 #include "DHT.h"
