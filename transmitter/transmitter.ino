@@ -47,6 +47,8 @@ NodeData node;
 
 #define SLEEPYTIME 10000
 
+#define DEBUGGING 1
+
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
@@ -76,10 +78,12 @@ void serialize(const NodeData& node, char* json, size_t maxSize) {
                 measurement["name"] = node.data[i]->name;
                 measurement["value"] = node.data[i]->value;
                 measurement["units"] = node.data[i]->units;
-                /* Serial.println("FIXME: From within serialize:"); */
-                /* Serial.println(node.data[i]->name); */
-                /* Serial.println(node.data[i]->value); */
-                /* Serial.println(node.data[i]->units); */
+#ifdef DEBUGGING
+                Serial.println("node.data[" + String(i) + "]");
+                Serial.println("Name: " + String(node.data[i]->name));
+                Serial.println("Value: " + String(node.data[i]->value));
+                Serial.println("Units: " + String(node.data[i]->units));
+#endif
         }
         root.printTo(json, maxSize);
 }
