@@ -73,7 +73,7 @@ void serialize(const NodeData& node, char* json, size_t maxSize) {
         root["name"] = node.name;
         JsonArray& data = root.createNestedArray("data");
         int i;
-        for (i=0; i <= MAX_SENSORS; i++) {
+        for (i=0; i < MAX_SENSORS; i++) {
                 JsonObject& measurement = data.createNestedObject();
                 measurement["name"] = node.data[i]->name;
                 measurement["value"] = node.data[i]->value;
