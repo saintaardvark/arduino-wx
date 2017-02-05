@@ -50,7 +50,14 @@ struct NodeData {
         SensorData *data[MAX_SENSORS];
 };
 
+/* NODE_ID is needed for the transmitter. */
 #define NODE_ID          1
+/*
+   NODE_ID_STR is needed to construct the JSON; need to have it as a
+   quoted string like this in order to make it show up; otherwise it's
+   just blank.
+ */
+#define NODE_ID_STR      "1"
 NodeData node;
 
 #define SLEEPYTIME 10000
@@ -122,7 +129,6 @@ void setup() {
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
                 while(1);
         }
-        node.name = (char*) NODE_ID;
         Serial.println("Node ID: " + String(NODE_ID));
 }
 
@@ -158,6 +164,7 @@ void loop() {
         node.data[2] = &pres_data;
         node.data[3] = &precip_data;
 
+        node.name = (char*) NODE_ID_STR;
         char json_for_serial[NODEDATA_JSON_SIZE];
         serialize(node, json_for_serial, NODEDATA_JSON_SIZE);
         // Doesn't seem to be an easy way to get the NODE_ID out on
