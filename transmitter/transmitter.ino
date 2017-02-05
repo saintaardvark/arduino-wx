@@ -123,6 +123,7 @@ void setup() {
 
         /* Initialise the sensor */
 
+#ifdef HAVE_BMP
         Serial.println("Pressure Sensor Test");
         Serial.println("");
         if(!bmp.begin()) {
@@ -130,19 +131,17 @@ void setup() {
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
                 while(1);
         }
+#endif
         Serial.println("Node ID: " + String(NODE_ID));
 }
 
 void loop() {
+
         humid = dht.readHumidity();
         temp = dht.readTemperature();
-        bmp.getEvent(&event);
-        precip = 1023 - analogRead(PRECIP_PIN);
 
         SensorData humid_data;
         SensorData temp_data;
-        SensorData pres_data;
-        SensorData precip_data;
 
         humid_data.name = "humid";
         humid_data.units = "%";
@@ -152,6 +151,16 @@ void loop() {
         temp_data.units = "C";
         temp_data.value = temp;
 
+        node.data[0] = &humid_data;
+        node.data[1] = &temp_data;
+
+
+#ifdef HAVE_BMP
+        bmp.getEvent(&event);
+        precip = 1023 - analogRead(PRECIP_PIN);
+        SensorData pres_data;
+        SensorData precip_data;
+
         pres_data.name = "pressure";
         pres_data.units = "hPA";
         pres_data.value = event.pressure;
@@ -160,11 +169,10 @@ void loop() {
         precip_data.units = "none";
         precip_data.value = precip;
 
-        node.data[0] = &humid_data;
-        node.data[1] = &temp_data;
+
         node.data[2] = &pres_data;
         node.data[3] = &precip_data;
-
+#endif
         node.name = (char*) NODE_ID_STR;
         char json_for_serial[NODEDATA_JSON_SIZE];
         serialize(node, json_for_serial, NODEDATA_JSON_SIZE);
@@ -172,11 +180,14 @@ void loop() {
         // the receiving end...
         final_msg_string = "Node: " + String(NODE_ID) + " , ";
         final_msg_string += "Temp: " + String(temp) + " C , ";
+
+#ifdef HAVE_BMP
         final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
         final_msg_string += "Precip: " + String(precip) + " , ";
         final_msg_string += "Humid: " + String(humid) + " %|";
 
         VWTX(final_msg_string);
+#endif
 
         /* Serial.println(final_msg_string); */
         /* Serial.print("Message length: "); */
