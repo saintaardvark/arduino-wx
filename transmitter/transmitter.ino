@@ -44,6 +44,8 @@ struct NodeData {
 #define NODE_ID          1
 NodeData node;
 
+#define SLEEPYTIME 10000
+
 // Send on digital pin 11 and identify as node 1
 RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
 
@@ -165,5 +167,5 @@ void loop() {
         Serial.println(counter);
 
         counter++;
-        delay(1000);
+        delay(SLEEPYTIME);
 }
