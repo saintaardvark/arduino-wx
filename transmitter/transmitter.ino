@@ -163,9 +163,6 @@ void loop() {
         /* Serial.println(counter); */
 
         Serial.println(json_for_serial);
-        Serial.print("Loop #");
-        Serial.println(counter);
-
         counter++;
         delay(SLEEPYTIME);
 }
