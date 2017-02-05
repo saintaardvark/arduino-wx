@@ -27,7 +27,8 @@ DHT dht(DHTPIN, DHTTYPE);
 #define PRECIP_PIN       A0
 
 // Needed for JSON serialization
-#define MAX_SENSORS 5
+// Not sure why -- but MAX_SENSORS needs to be number of sensors + 1.
+#define MAX_SENSORS 3
 #define NODEDATA_JSON_SIZE (JSON_OBJECT_SIZE(1 + MAX_SENSORS * 3))
 
 struct SensorData {
