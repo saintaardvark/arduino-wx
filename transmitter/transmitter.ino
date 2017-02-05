@@ -28,9 +28,16 @@ DHT dht(DHTPIN, DHTTYPE);
 
 // Needed for JSON serialization
 #define MAX_SENSORS 2
-// Not sure why -- but when calculating NODEDATA_JSON_SIZE,
-// MAX_SENSORS needs to be incremented by one.
-#define NODEDATA_JSON_SIZE (JSON_OBJECT_SIZE(1 + (MAX_SENSORS + 1) * 3))
+/*
+   Not sure why -- but when calculating NODEDATA_JSON_SIZE,
+   MAX_SENSORS needs to be incremented by one; without this, the last
+   measurement won't appear in the JSON.  Similarly the multiplicand
+   at the end needs to be number of entries in struct SensorData + 1;
+   without this, the last element of the struct won't appear in the
+   JSON.
+*/
+
+#define NODEDATA_JSON_SIZE (JSON_OBJECT_SIZE(1 + (MAX_SENSORS + 1) * 4))
 
 struct SensorData {
         const char* name;
