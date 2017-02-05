@@ -115,6 +115,7 @@ void setup() {
                 while(1);
         }
         node.name = (char*) NODE_ID;
+        Serial.println("Node ID: " + String(NODE_ID));
 }
 
 void loop() {
