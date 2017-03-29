@@ -1,6 +1,6 @@
 {
   "name": "1",
-  "data": [
+  "measurements": [
     {
       "name": "humid",
       "value": 37,
