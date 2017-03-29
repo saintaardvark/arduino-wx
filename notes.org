@@ -8,3 +8,11 @@
       libraries I'm including.
     - Maybe accidentally hitting the reset pin from software?
       https://www.element14.com/community/thread/31916/l/help-my-processing-code-is-restarting-my-arduino-code?displayFullThread=true
+* <2017-02-25 Sat>
+  - http://arduino.stackexchange.com/questions/18755/433mhz-range-optimization
+  - http://www.ebay.fr/itm/-/231307436637?_trksid=p3984.m1439.l2649&ssPageName=STRK:MEWNX:IT
+  - http://www.ebay.com/sch/i.html?_from=R40&_trksid=p2047675.m570.l1311.R1.TR1.TRC0.A0.H0.X433+mhz+super.TRS0&_nkw=433mhz+superheterodyne&_sacat=0
+  - http://arduino.stackexchange.com/questions/17733/433mhz-sending-not-receiving
+  - http://rayshobby.net/reverse-engineer-wireless-temperature-humidity-rain-sensors-part-1/
+  - https://n8henrie.com/2015/03/range-testing-for-wireless-arduino-projects-rf-433-mhz-and-nrf24l01/
+  - http://electronics.stackexchange.com/questions/99543/how-to-check-a-433mhz-module-on-an-arduino
