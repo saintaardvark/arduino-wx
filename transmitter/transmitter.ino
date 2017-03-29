@@ -56,13 +56,13 @@ struct NodeData {
 };
 
 /* NODE_ID is needed for the transmitter. */
-#define NODE_ID          1
+#define NODE_ID          2
 /*
    NODE_ID_STR is needed to construct the JSON; need to have it as a
    quoted string like this in order to make it show up; otherwise it's
    just blank.
  */
-#define NODE_ID_STR      "1"
+#define NODE_ID_STR      "2"
 NodeData node;
 
 #define SLEEPYTIME 10000
