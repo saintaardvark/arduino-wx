@@ -1,3 +1,6 @@
+# BOARD_TAG    = mega
+# BOARD_SUB    = atmega2560
+# MONITOR_PORT = /dev/ttyACM0
 BOARD_TAG    = uno
 MONITOR_PORT = /dev/ttyUSB0
 ARDUINO_LIBS = RFTransmitter-master DHT-sensor-library-master Adafruit_BMP085_Unified-master Wire Adafruit_Sensor-master ArduinoJson-master
