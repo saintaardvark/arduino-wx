@@ -8,6 +8,12 @@
 - Adafruit's [DHT Sensor library][3], [BMP085_Unified library][7] and [Unified Sensor Driver][5]
 - [Benoit Blanchon's Arduino JSON library][6]
 
+# Building
+
+```
+make upload
+```
+
 [0]: https://github.com/sudar/Arduino-Makefile.git
 [1]: https://github.com/zeitgeist87/RFReceiver
 [2]: https://github.com/zeitgeist87/RFTransmitter
