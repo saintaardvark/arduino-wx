@@ -192,8 +192,8 @@ void loop() {
         final_msg_string += "Precip: " + String(precip) + " , ";
         final_msg_string += "Humid: " + String(humid) + " %|";
 
-        VWTX(final_msg_string);
 #endif
+        VWTX(json_for_serial);
 
         /* Serial.println(final_msg_string); */
         /* Serial.print("Message length: "); */
