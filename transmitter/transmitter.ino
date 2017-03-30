@@ -27,7 +27,10 @@ DHT dht(DHTPIN, DHTTYPE);
 #define PRECIP_PIN       A0
 
 // Send on digital pin 11 and identify as node 1
-RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID);
+/* Try setting delay to longer... */
+#define PULSE_LENGTH     500
+#define BACKOFFDELAY    1000
+RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID, PULSE_LENGTH, BACKOFFDELAY);
 
 float humid;
 float temp;

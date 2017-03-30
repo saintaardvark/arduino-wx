@@ -2,7 +2,8 @@
 #include <RFReceiver.h>
 
 // Listen on digital pin 2
-RFReceiver receiver(2);
+#define PULSE_LENGTH     500
+RFReceiver receiver(2, PULSE_LENGTH);
 String payload;
 const char endOfMessage = '|';
 int index;
