@@ -8,3 +8,22 @@
       libraries I'm including.
     - Maybe accidentally hitting the reset pin from software?
       https://www.element14.com/community/thread/31916/l/help-my-processing-code-is-restarting-my-arduino-code?displayFullThread=true
+* <2017-03-29 Wed>
+  - OMFG, can *listen* to the signal on 433 MHz receiver!
+    - data from RX to one ring of headphones, ground to ground
+      ring....amazing way to tune reception.  Could hear it clear out
+      across courtyard.
+* <2017-03-30 Thu>
+  - Not necessarily getting better perf from rx with antenna
+  - tuning pulse length to 250 or 500 ms makes a *huge* difference
+    - Added all *kinds of debugging code to Receiver library to track
+      down problem: bad CRC.
+    - Came across
+      https://github.com/zeitgeist87/RFReceiver/issues/2#issuecomment-284136307,
+      and sure enough it worked.
+  - had to do a "make clean" to fix problems with rx not receiving any
+    data.  Mixup in pulse length?
+  - Very roughly, can use coil (either the copper ones I bought, or
+    hte ones I made) as direction of antenna -- so pointing it between
+    tx/rx seems to help a lot.
+  - Next up: merge the JSON in.
