@@ -53,6 +53,10 @@ void VWTX(String VWMsgStr) {
         digitalWrite(13, true); // Flash a light to show transmitting
         transmitter.send((byte *)VWMsgBuf, VWMsgBufLen);
         digitalWrite(13, false); // Flash a light to show transmitting
+        delay(1000);
+        digitalWrite(13, true); // Flash a light to show transmitting
+        transmitter.resend((byte *)VWMsgBuf, VWMsgBufLen);
+        digitalWrite(13, false); // Flash a light to show transmitting
 }
 
 void setup() {
