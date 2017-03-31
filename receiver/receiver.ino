@@ -31,8 +31,5 @@ void loop() {
         byte packageId = 0;
         byte len = receiver.recvPackage((byte *)msg, &senderId, &packageId);
         payload = String(msg);
-        index = payload.indexOf(endOfMessage);
-        payload.remove(index);
         Serial.println(payload);
-        flashyflashy();
 }
