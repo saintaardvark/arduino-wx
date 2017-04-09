@@ -194,21 +194,18 @@ void loop() {
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
         /* final_msg_string += "Temp: " + String(temp) + " C , "; */
 
+        final_msg_string = "{";
+        final_msg_string += "Tmp " + String(temp) + " C,";
 #ifdef HAVE_BMP
-        final_msg_string += "Pres: " + String(event.pressure) + " hPA , ";
-        final_msg_string += "Precip: " + String(precip) + " , ";
-        final_msg_string += "Humid: " + String(humid) + " %|";
-
+        final_msg_string += "Prs " + String(event.pressure) + " hP,";
+        /* AU == arbitrary units */
+        final_msg_string += "Prc " + String(precip) + " AU,";
 #endif
-        VWTX(json_for_serial);
+        final_msg_string += "Hmd " + String(humid) + " %,";
+        final_msg_string += "}";
 
-        /* Serial.println(final_msg_string); */
-        /* Serial.print("Message length: "); */
-        /* Serial.println(final_msg_string.length()); */
-        /* Serial.print("Loop #"); */
-        /* Serial.println(counter); */
 
-        Serial.println(json_for_serial);
-        counter++;
+        VWTX(final_msg_string);
+        Serial.println(final_msg_string);
         delay(SLEEPYTIME);
 }
