@@ -113,16 +113,18 @@ void loop() {
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
         /* final_msg_string += "Temp: " + String(temp) + " C , "; */
 
-#ifdef HAVE_BMP
-        final_msg_string = "{"
+
+        final_msg_string = "{";
         final_msg_string += "Tmp " + String(temp) + " C,";
+#ifdef HAVE_BMP
         final_msg_string += "Prs " + String(event.pressure) + " hP,";
         /* AU == arbitrary units */
         final_msg_string += "Prc " + String(precip) + " AU,";
+#endif
         final_msg_string += "Hmd " + String(humid) + " %,";
         final_msg_string += "}";
 
-#endif
+
         VWTX(final_msg_string);
         Serial.println(final_msg_string);
         delay(SLEEPYTIME);
