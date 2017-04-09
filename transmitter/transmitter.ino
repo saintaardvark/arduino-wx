@@ -113,7 +113,6 @@ void loop() {
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
         /* final_msg_string += "Temp: " + String(temp) + " C , "; */
 
-
         final_msg_string = "{";
         final_msg_string += "Tmp " + String(temp) + " C,";
 #ifdef HAVE_BMP
