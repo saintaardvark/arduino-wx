@@ -3,26 +3,33 @@
 
 #define LEDPIN           13
 
-/* 
-   Format of message: 
-   {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
+/*
 
-   "{": start of data (1 char)
+  Okay.  So:
 
-   Up to four of:
-   "XXX ": Measurement type (4 char)
-   "XXXX.XX ": Measurement (8 char)
-   "XX ": Unit (3 char)
-   ",": Separator (1 char)
-   Total: 16 char
+  When using 433 MHz, I was building up one string with everything,
+  and transmitting that.  When I switched to 2.4HGz, I thought I could
+  do the same -- but it turns out that there's a max payload size of
+  32 bytes
+  (https://arduino.stackexchange.com/questions/8185/increasing-payload-size-above-32-bytes-using-nrf24l01).
 
-   "}": end of data (1 char)
+  Thus, change o' plan: we now transmit each measurement separately,
+  and ensure a reasonable payload size.
 
-   Null term: 1 char (not sure if this is needed)
+  Format of message:
+  {Temp: 19.30 C}
 
-   1 + 4 x 16 + 1 + 1= 66 chars
+  "{": start of data (1 char)
+  "XXXX: ": Measurement type (6 char)
+  "XXXX.XX ": Measurement (8 char)
+  "XX": Unit (2 char)
+  "}": end of data (1 char)
 
- */
+  Null term: 1 char (not sure if this is needed)
+
+  Total: 19 chars
+
+*/
 #define MAX_PAYLOAD_LEN 66
 
 char payload[MAX_PAYLOAD_LEN];

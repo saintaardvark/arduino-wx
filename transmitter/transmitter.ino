@@ -4,23 +4,30 @@
 
 
 /*
+
+  Okay.  So:
+
+  When using 433 MHz, I was building up one string with everything,
+  and transmitting that.  When I switched to 2.4HGz, I thought I could
+  do the same -- but it turns out that there's a max payload size of
+  32 bytes
+  (https://arduino.stackexchange.com/questions/8185/increasing-payload-size-above-32-bytes-using-nrf24l01).
+
+  Thus, change o' plan: we now transmit each measurement separately,
+  and ensure a reasonable payload size.
+
   Format of message:
-  {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
+  {Temp: 19.30 C}
 
   "{": start of data (1 char)
-
-  Up to four of:
-  "XXX ": Measurement type (4 char)
+  "XXXX: ": Measurement type (6 char)
   "XXXX.XX ": Measurement (8 char)
-  "XX ": Unit (3 char)
-  ",": Separator (1 char)
-  Total: 16 char
-
+  "XX": Unit (2 char)
   "}": end of data (1 char)
 
   Null term: 1 char (not sure if this is needed)
 
-  1 + 4 x 16 + 1 + 1= 66 chars
+  Total: 19 chars
 
 */
 #define MAX_PAYLOAD_LEN 66
@@ -120,6 +127,7 @@ void setup() {
         /* NRF24L01 init */
         Serial.println("radio.begin");
         radio.begin();
+        radio.setPayloadSize(MAX_PAYLOAD_LEN);
         /*
           Set the PA Level low to prevent power supply related issues.
           Since this is a getting_started sketch, and the likelihood
@@ -153,6 +161,18 @@ void setup() {
         Serial.println("---");
 }
 
+String build_msg(SensorData reading) {
+        String msg;
+        msg = "{";
+        msg += String(reading.name);
+        msg += ": ";
+        msg += String(reading.value);
+        msg += " ";
+        msg += String(reading.units);
+        msg += "}";
+        return msg;
+}
+
 void loop() {
 
         SensorData humid_data;
@@ -165,32 +185,37 @@ void loop() {
           there.  Same applies to dht.readTemperature.
         */
         humid = dht.readHumidity();
-        humid_data.name = "humid";
+        humid_data.name = "Humd";
         humid_data.units = "%";
         humid_data.value = humid;
 
+        transmit(build_msg(humid_data));
+
         temp = dht.readTemperature();
-        temp_data.name = "temp";
+        temp_data.name = "Temp";
         temp_data.units = "C";
         temp_data.value = dht.readTemperature();
+        transmit(build_msg(temp_data));
 
-        node.data[0] = &humid_data;
-        node.data[1] = &temp_data;
+        /* node.data[0] = &humid_data; */
+        /* node.data[1] = &temp_data; */
 
 #ifdef HAVE_BMP
         bmp.getEvent(&event);
-        pres_data.name = "pressure";
-        pres_data.units = "hPA";
+        pres_data.name = "Pres";
+        pres_data.units = "hP";
         pres_data.value = event.pressure;
-        node.data[2] = &pres_data;
+        /* node.data[2] = &pres_data; */
+        transmit(build_msg(pres_data));
 #endif  /* HAVE_BMP */
 
 #ifdef HAVE_PRECIP
         SensorData precip_data;
-        precip_data.name = "precip";
-        precip_data.units = "none";
+        precip_data.name = "Prcp";
+        precip_data.units = "NA";
         precip_data.value = 1023 - analogRead(PRECIP_PIN);
-        node.data[3] = &precip_data;
+        /* node.data[3] = &precip_data;  */
+        transmit(build_msg(precip_data));
 #endif  /* HAVE_PRECIP */
 
         /* node.name = (char*) NODE_ID_STR; */
@@ -199,20 +224,20 @@ void loop() {
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
         /* final_msg_string += "Temp: " + String(temp) + " C , "; */
 
-        final_msg_string = "{";
-        final_msg_string += "Tmp " + String(temp) + " C,";
-        final_msg_string += "Hmd " + String(humid) + " %,";
+/*         final_msg_string = "{"; */
+/*         final_msg_string += "Tmp " + String(temp) + " C,"; */
+/*         final_msg_string += "Hmd " + String(humid) + " %,"; */
 
-#ifdef HAVE_BMP
-        final_msg_string += "Prs " + String(event.pressure) + " hP,";
-#endif  /* HAVE_BMP */
+/* #ifdef HAVE_BMP */
+/*         final_msg_string += "Prs " + String(event.pressure) + " hP,"; */
+/* #endif  /\* HAVE_BMP *\/ */
 
-#ifdef HAVE_PRECIP
-        /* AU == arbitrary units */
-        final_msg_string += "Prc " + String(precip) + " AU,";
-#endif  /* HAVE_PRECIP */
+/* #ifdef HAVE_PRECIP */
+/*         /\* AU == arbitrary units *\/ */
+/*         final_msg_string += "Prc " + String(precip) + " AU,"; */
+/* #endif  /\* HAVE_PRECIP *\/ */
 
-        final_msg_string += "}";
+/*         final_msg_string += "}"; */
 
 
         transmit(final_msg_string);
