@@ -30,7 +30,7 @@ bool role = 0;
 String final_msg_string;
 
 #define DHTPIN 2     // what digital pin we're connected to
-#define DHTTYPE DHT11   // DHT 22  (AM2302), AM2321
+#define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
 #define TRANSMITTER_PIN  11
