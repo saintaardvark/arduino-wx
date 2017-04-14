@@ -12,7 +12,10 @@
 #include <Adafruit_BMP085_U.h>
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 sensors_event_t event;
-#endif
+#endif  /* HAVE_BMP */
+
+/* Uncomment if you have precip sensor */
+#define HAVE_PRECIP 1
 
 // Humidity sensor
 #include "DHT.h"
@@ -97,7 +100,8 @@ void setup() {
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
                 while(1);
         }
-#endif
+#endif  /* HAVE_BMP */
+
         Serial.println("Node ID: " + String(NODE_ID));
 }
 
@@ -108,10 +112,19 @@ void loop() {
 
 #ifdef HAVE_BMP
         bmp.getEvent(&event);
-        precip = 1023 - analogRead(PRECIP_PIN);
-        SensorData pres_data;
+        pres_data.name = "pressure";
+        pres_data.units = "hPA";
+        pres_data.value = event.pressure;
+        node.data[2] = &pres_data;
+#endif  /* HAVE_BMP */
+
+#ifdef HAVE_PRECIP
         SensorData precip_data;
-#endif
+        precip_data.name = "precip";
+        precip_data.units = "none";
+        precip_data.value = 1023 - analogRead(PRECIP_PIN);
+        node.data[3] = &precip_data;
+#endif  /* HAVE_PRECIP */
 
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
@@ -122,10 +135,13 @@ void loop() {
         final_msg_string += "Tmp " + String(temp) + " C,";
 #ifdef HAVE_BMP
         final_msg_string += "Prs " + String(event.pressure) + " hP,";
+#endif  /* HAVE_BMP */
+
+#ifdef HAVE_PRECIP
         /* AU == arbitrary units */
         final_msg_string += "Prc " + String(precip) + " AU,";
-#endif
-        final_msg_string += "Hmd " + String(humid) + " %,";
+#endif  /* HAVE_PRECIP */
+
         final_msg_string += "}";
 
 
