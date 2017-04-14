@@ -96,10 +96,15 @@ void setup() {
         /* NRF24L01 init */
         Serial.println("radio.begin");
         radio.begin();
-        // Set the PA Level low to prevent power supply related issues since this is a
-        // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+        /*
+           Set the PA Level low to prevent power supply related issues.
+           Since this is a getting_started sketch, and the likelihood
+           of close proximity of the devices,  RF24_PA_MAX is default.
+
+           FIXME: Refactor to make the addresses clearer.
+        */
+
         radio.setPALevel(RF24_PA_LOW);
-        /* FIXME: Refactor, not needed; just keeping the copy-pasta simple for now.  */
         debug("Setting up pipes");
         debug("Writing to 1, reading from 0");
         radio.openWritingPipe(addresses[1]);
