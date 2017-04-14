@@ -24,9 +24,6 @@ RF24 radio(7,8);
 
 byte addresses[][6] = {"1Node","2Node"};
 
-/* Role: 0 == transmitter, 1 = receiver */
-bool role = 0;
-
 String final_msg_string;
 
 #define DHTPIN 2     // what digital pin we're connected to
