@@ -49,12 +49,12 @@ struct NodeData {
 };
 
 /* NODE_ID is needed for the transmitter. */
+#define NODE_ID          3
+NodeData node;
 
 #define SLEEPYTIME 10000
 
 /* Uncomment for helpful debug messages */
-/* #define DEBUGGING 1 */
-
 #define DEBUGGING 1
 
 float humid;
@@ -165,6 +165,8 @@ void loop() {
 
         final_msg_string = "{";
         final_msg_string += "Tmp " + String(temp) + " C,";
+        final_msg_string += "Hmd " + String(humid) + " %,";
+
 #ifdef HAVE_BMP
         final_msg_string += "Prs " + String(event.pressure) + " hP,";
 #endif  /* HAVE_BMP */
