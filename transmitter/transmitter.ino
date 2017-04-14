@@ -22,7 +22,7 @@ sensors_event_t event;
 /* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
 RF24 radio(7,8);
 
-byte addresses[][6] = {"trans","recv"};
+byte addresses[][6] = {"1Node","2Node"};
 
 /* Role: 0 == transmitter, 1 = receiver */
 bool role = 0;
@@ -61,6 +61,12 @@ float humid;
 float temp;
 int precip;
 
+void debug(String msg) {
+#ifdef DEBUGGING
+        Serial.println(msg);
+#endif  /* DEBUGGING */
+}
+
 void flashyflashy() {
         digitalWrite(LEDPIN, HIGH);
         delay(125);
@@ -94,10 +100,10 @@ void setup() {
         // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
         radio.setPALevel(RF24_PA_LOW);
         /* FIXME: Refactor, not needed; just keeping the copy-pasta simple for now.  */
-        if (role == 0) {
-                radio.openWritingPipe(addresses[1]);
-                radio.openReadingPipe(1, addresses[0]);
-        }
+        debug("Setting up pipes");
+        debug("Writing to 1, reading from 0");
+        radio.openWritingPipe(addresses[1]);
+        radio.openReadingPipe(1, addresses[0]);
         radio.startListening();
 
         /* BMP init */
