@@ -76,11 +76,14 @@ void setup() {
 void loop() {
 
         unsigned long got_time;
+        int len = 0;
 
         if( radio.available()){
                 // Variable for the received timestamp
                 while (radio.available()) {                                   // While there is data ready
-                        radio.read( &payload, sizeof(payload));              // Get the payload
+                        len = radio.getDynamicPayloadSize();
+                        Serial.println(len);
+                        radio.read(&payload, len);              // Get the payload
                 }
                 Serial.print("Payload: |");
                 Serial.print(payload);

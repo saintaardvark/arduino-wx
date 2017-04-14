@@ -4,25 +4,25 @@
 
 
 /*
-   Format of message:
-   {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
+  Format of message:
+  {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
 
-   "{": start of data (1 char)
+  "{": start of data (1 char)
 
-   Up to four of:
-   "XXX ": Measurement type (4 char)
-   "XXXX.XX ": Measurement (8 char)
-   "XX ": Unit (3 char)
-   ",": Separator (1 char)
-   Total: 16 char
+  Up to four of:
+  "XXX ": Measurement type (4 char)
+  "XXXX.XX ": Measurement (8 char)
+  "XX ": Unit (3 char)
+  ",": Separator (1 char)
+  Total: 16 char
 
-   "}": end of data (1 char)
+  "}": end of data (1 char)
 
-   Null term: 1 char (not sure if this is needed)
+  Null term: 1 char (not sure if this is needed)
 
-   1 + 4 x 16 + 1 + 1= 66 chars
+  1 + 4 x 16 + 1 + 1= 66 chars
 
- */
+*/
 #define MAX_PAYLOAD_LEN 66
 
 /* Uncomment if you have a BMP sensor */
@@ -96,8 +96,12 @@ void flashyflashy() {
 
 void transmit(String msg) {
         radio.stopListening();
+        /* See https://forum.arduino.cc/index.php?topic=341963.0 */
+        char payload[MAX_PAYLOAD_LEN];
+        msg.toCharArray(payload, MAX_PAYLOAD_LEN);
+        Serial.println(msg);
         flashyflashy();
-        if (!radio.write( &msg, sizeof(msg) )){
+        if (!radio.write(&payload, strlen(payload))){
                 Serial.println(F("failed"));
         }
         flashyflashy();
@@ -117,11 +121,11 @@ void setup() {
         Serial.println("radio.begin");
         radio.begin();
         /*
-           Set the PA Level low to prevent power supply related issues.
-           Since this is a getting_started sketch, and the likelihood
-           of close proximity of the devices,  RF24_PA_MAX is default.
+          Set the PA Level low to prevent power supply related issues.
+          Since this is a getting_started sketch, and the likelihood
+          of close proximity of the devices,  RF24_PA_MAX is default.
 
-           FIXME: Refactor to make the addresses clearer.
+          FIXME: Refactor to make the addresses clearer.
         */
 
         radio.setPALevel(RF24_PA_LOW);
@@ -155,10 +159,10 @@ void loop() {
         SensorData temp_data;
 
         /*
-           You'd *think* you could just assign the result of
-           dht.readHumidity() directly to humid_data.value.  Turns out
-           that's not the case; if you do that, you just get 0 in
-           there.  Same applies to dht.readTemperature.
+          You'd *think* you could just assign the result of
+          dht.readHumidity() directly to humid_data.value.  Turns out
+          that's not the case; if you do that, you just get 0 in
+          there.  Same applies to dht.readTemperature.
         */
         humid = dht.readHumidity();
         humid_data.name = "humid";
