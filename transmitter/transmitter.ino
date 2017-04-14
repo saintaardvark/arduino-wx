@@ -35,12 +35,20 @@ DHT dht(DHTPIN, DHTTYPE);
 
 #define LEDPIN           13
 #define PRECIP_PIN       A0
+#define MAX_SENSORS      4
 
-// Needed for JSON serialization
-#define MAX_SENSORS 2
+struct SensorData {
+        const char* name;
+        const char* units;
+        float value;
+};
+
+struct NodeData {
+        const char* name;
+        SensorData *data[MAX_SENSORS];
+};
 
 /* NODE_ID is needed for the transmitter. */
-#define NODE_ID          2
 
 #define SLEEPYTIME 10000
 
@@ -112,8 +120,27 @@ void setup() {
 
 void loop() {
 
+        SensorData humid_data;
+        SensorData temp_data;
+
+        /*
+           You'd *think* you could just assign the result of
+           dht.readHumidity() directly to humid_data.value.  Turns out
+           that's not the case; if you do that, you just get 0 in
+           there.  Same applies to dht.readTemperature.
+        */
         humid = dht.readHumidity();
+        humid_data.name = "humid";
+        humid_data.units = "%";
+        humid_data.value = humid;
+
         temp = dht.readTemperature();
+        temp_data.name = "temp";
+        temp_data.units = "C";
+        temp_data.value = dht.readTemperature();
+
+        node.data[0] = &humid_data;
+        node.data[1] = &temp_data;
 
 #ifdef HAVE_BMP
         bmp.getEvent(&event);
