@@ -1,5 +1,5 @@
-#include <RFTransmitter.h>
-#include <Wire.h>
+#include <SPI.h>
+#include "RF24.h"
 #include <Adafruit_Sensor.h>
 
 /* Uncomment if you have a BMP sensor */
@@ -16,10 +16,14 @@ sensors_event_t event;
 
 // Humidity sensor
 #include "DHT.h"
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
+RF24 radio(7,8);
 
-// Copied from RFReceiver.h
-const byte MAX_PAYLOAD_SIZE = 80;
-char VWMsgBuf[MAX_PAYLOAD_SIZE];
+byte addresses[][6] = {"trans","recv"};
+
+/* Role: 0 == transmitter, 1 = receiver */
+bool role = 0;
+
 String final_msg_string;
 
 #define DHTPIN 2     // what digital pin we're connected to
@@ -41,11 +45,7 @@ DHT dht(DHTPIN, DHTTYPE);
 /* Uncomment for helpful debug messages */
 /* #define DEBUGGING 1 */
 
-// Send on digital pin 11 and identify as node 1
-/* Try setting delay to longer... */
-#define PULSE_LENGTH     500
-#define BACKOFFDELAY    1000
-RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID, PULSE_LENGTH, BACKOFFDELAY);
+#define DEBUGGING 1
 
 float humid;
 float temp;
@@ -58,21 +58,14 @@ void flashyflashy() {
         delay(125);
 }
 
-// Thanks, bblanchon!
-// https://github.com/bblanchon/ArduinoJson/wiki/FAQ#whats-the-best-way-to-use-the-library
-
-// Thanks, linhartr22!
-// https://github.com/linhartr22/433_MHz_Wireless_TX-RX_Demo/blob/master/TX_Temp_Test/TX_Temp_Test.ino#L80-L88
-void VWTX(String VWMsgStr) {
-        VWMsgStr.toCharArray(VWMsgBuf, MAX_PAYLOAD_SIZE);
-        uint8_t VWMsgBufLen = strlen(VWMsgBuf);
-        digitalWrite(13, true); // Flash a light to show transmitting
-        transmitter.send((byte *)VWMsgBuf, VWMsgBufLen);
-        digitalWrite(13, false); // Flash a light to show transmitting
-        delay(1000);
-        digitalWrite(13, true); // Flash a light to show transmitting
-        transmitter.resend((byte *)VWMsgBuf, VWMsgBufLen);
-        digitalWrite(13, false); // Flash a light to show transmitting
+void transmit(String msg) {
+        radio.stopListening();
+        flashyflashy();
+        if (!radio.write( &msg, sizeof(msg) )){
+                Serial.println(F("failed"));
+        }
+        flashyflashy();
+        radio.startListening();
 }
 
 void setup() {
@@ -82,7 +75,19 @@ void setup() {
         Serial.println("dht.begin");
         dht.begin();
 
-        /* Initialise the sensor */
+        /* NRF24L01 init */
+        Serial.println("radio.begin");
+        radio.begin();
+        // Set the PA Level low to prevent power supply related issues since this is a
+        // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+        radio.setPALevel(RF24_PA_LOW);
+        /* FIXME: Refactor, not needed; just keeping the copy-pasta simple for now.  */
+        if (role == 0) {
+                radio.openWritingPipe(addresses[1]);
+                radio.openReadingPipe(1, addresses[0]);
+        }
+        radio.startListening();
+
 
 #ifdef HAVE_BMP
         Serial.println("Pressure Sensor Test");
@@ -124,7 +129,7 @@ void loop() {
         final_msg_string += "}";
 
 
-        VWTX(final_msg_string);
+        transmit(final_msg_string);
         Serial.println(final_msg_string);
         delay(SLEEPYTIME);
 }
