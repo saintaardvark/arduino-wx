@@ -2,6 +2,29 @@
 #include "RF24.h"
 #include <Adafruit_Sensor.h>
 
+
+/*
+   Format of message:
+   {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
+
+   "{": start of data (1 char)
+
+   Up to four of:
+   "XXX ": Measurement type (4 char)
+   "XXXX.XX ": Measurement (8 char)
+   "XX ": Unit (3 char)
+   ",": Separator (1 char)
+   Total: 16 char
+
+   "}": end of data (1 char)
+
+   Null term: 1 char (not sure if this is needed)
+
+   1 + 4 x 16 + 1 + 1= 66 chars
+
+ */
+#define MAX_PAYLOAD_LEN 66
+
 /* Uncomment if you have a BMP sensor */
 /* #define HAVE_BMP 1 */
 
@@ -166,6 +189,7 @@ void loop() {
         node.data[3] = &precip_data;
 #endif  /* HAVE_PRECIP */
 
+        /* node.name = (char*) NODE_ID_STR; */
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */

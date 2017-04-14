@@ -1,12 +1,32 @@
-#include <PinChangeInterruptHandler.h>
-#include <RFReceiver.h>
+#include <SPI.h>
+#include "RF24.h"
 
-// Listen on digital pin 2
-#define PULSE_LENGTH     500
 #define LEDPIN           13
 
-RFReceiver receiver(2, PULSE_LENGTH);
-String payload;
+/* 
+   Format of message: 
+   {Tmp 19.30 C,Hmd 50.00 %,Prc 0 AU,}
+
+   "{": start of data (1 char)
+
+   Up to four of:
+   "XXX ": Measurement type (4 char)
+   "XXXX.XX ": Measurement (8 char)
+   "XX ": Unit (3 char)
+   ",": Separator (1 char)
+   Total: 16 char
+
+   "}": end of data (1 char)
+
+   Null term: 1 char (not sure if this is needed)
+
+   1 + 4 x 16 + 1 + 1= 66 chars
+
+ */
+#define MAX_PAYLOAD_LEN 66
+
+char payload[MAX_PAYLOAD_LEN];
+
 const char endOfMessage = '|';
 int index;
 
