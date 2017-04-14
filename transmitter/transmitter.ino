@@ -74,6 +74,8 @@ void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
         Serial.println("Reboot");
+
+        /* DHT init */
         Serial.println("dht.begin");
         dht.begin();
 
@@ -90,6 +92,7 @@ void setup() {
         }
         radio.startListening();
 
+        /* BMP init */
 
 #ifdef HAVE_BMP
         Serial.println("Pressure Sensor Test");
@@ -101,7 +104,10 @@ void setup() {
         }
 #endif  /* HAVE_BMP */
 
+        /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
+        Serial.println("LET'S DO THIS!");
+        Serial.println("---");
 }
 
 void loop() {
