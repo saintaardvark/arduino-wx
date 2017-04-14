@@ -82,8 +82,9 @@ void loop() {
                 while (radio.available()) {                                   // While there is data ready
                         radio.read( &payload, sizeof(payload));              // Get the payload
                 }
-                Serial.print("Payload: ");
-                Serial.println(payload);
+                Serial.print("Payload: |");
+                Serial.print(payload);
+                Serial.println("|");
                 radio.stopListening();                                        // First, stop listening so we can talk
                 radio.write( &got_time, sizeof(unsigned long));              // Send the final one back.
                 radio.startListening();                                       // Now, resume listening so we catch the next packets.
