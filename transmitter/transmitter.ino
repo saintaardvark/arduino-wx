@@ -33,7 +33,6 @@ String final_msg_string;
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
-#define TRANSMITTER_PIN  11
 #define LEDPIN           13
 #define PRECIP_PIN       A0
 
