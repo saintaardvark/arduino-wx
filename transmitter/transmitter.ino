@@ -32,7 +32,7 @@
 #define MAX_PAYLOAD_LEN 66
 
 /* Uncomment if you have a BMP sensor */
-/* #define HAVE_BMP 1 */
+#define HAVE_BMP 1
 
 # ifdef HAVE_BMP
 // Barometer / Temp
@@ -200,6 +200,7 @@ void loop() {
         /* node.data[1] = &temp_data; */
 
 #ifdef HAVE_BMP
+        SensorData pres_data;
         bmp.getEvent(&event);
         pres_data.name = "Pres";
         pres_data.units = "hP";
