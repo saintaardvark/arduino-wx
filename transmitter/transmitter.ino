@@ -2,7 +2,6 @@
 #include "RF24.h"
 #include <Adafruit_Sensor.h>
 
-
 /*
 
   Okay.  So:
