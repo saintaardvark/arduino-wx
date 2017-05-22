@@ -44,7 +44,7 @@ const char endOfMessage = '|';
 int index;
 
 /* Uncomment for helpful debug messages */
-#define DEBUGGING 1
+/* #define DEBUGGING 1 */
 
 void debug(String msg) {
 #ifdef DEBUGGING
