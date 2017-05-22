@@ -89,17 +89,15 @@ void loop() {
                 // Variable for the received timestamp
                 while (radio.available()) {                                   // While there is data ready
                         len = radio.getDynamicPayloadSize();
-                        Serial.println(len);
+                        debug(String(len));
                         radio.read(&payload, len);              // Get the payload
                 }
-                Serial.print("Payload: |");
-                Serial.print(payload);
-                Serial.println("|");
+                debug("Payload received!");
+                Serial.println(payload);
                 radio.stopListening();                                        // First, stop listening so we can talk
                 radio.write( &got_time, sizeof(unsigned long));              // Send the final one back.
                 radio.startListening();                                       // Now, resume listening so we catch the next packets.
-                Serial.print(F("Sent response "));
-                Serial.println(got_time);
+                debug(F("Response sent."));
         }
 
         /* char msg[MAX_PACKAGE_SIZE]; */
