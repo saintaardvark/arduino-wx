@@ -66,8 +66,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	measure, value := splitLine(reply)
 	fmt.Printf("%s: %s\n", measure, value)
+	measure, value, err := splitLine(reply)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Println("Next up: connecting to InfluxDB.")
 	// Create a new HTTPClient
 	ic, err := client.NewHTTPClient(client.HTTPConfig{
