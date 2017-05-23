@@ -4,16 +4,18 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"os"
+	"time"
 
 	"github.com/tarm/serial"
-	// "github.com/influxdata/influxdb/client/v2"
+	"github.com/influxdata/influxdb/client/v2"
 )
 
-// const (
-// 	MyDB       = "weather"
-// 	username   = "weather"
-// 	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
-// )
+const (
+	MyDB       = "weather"
+	username   = "weather"
+	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
+)
 
 // type Measurement struct {
 // 	Name  string
@@ -30,7 +32,10 @@ import (
 
 
 func main() {
-	
+	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
+	if exists == false {
+		log.Fatal("Can't proceed without environment var INFLUXDB_PASS!")
+	}
 	usbdev := "/dev/ttyUSB0"
 	c := &serial.Config{Name: usbdev, Baud: 9600}
 	s, err := serial.OpenPort(c)
@@ -44,17 +49,46 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(reply)
+	fmt.Println("Now to try connecting to InfluxDB.")
+	// Create a new HTTPClient
+	ic, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     influxAddr,
+		Username: username,
+		Password: influxPass,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	// Create a new point batch
+	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  MyDB,
+		Precision: "s",
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a point and add to batch
+	tags := map[string]string{"cpu": "cpu-total"}
+	fields := map[string]interface{}{
+		"idle":   10.1,
+		"system": 53.3,
+		"user":   46.6,
+	}
+
+	pt, err := client.NewPoint("cpu_usage", tags, fields, time.Now())
+	if err != nil {
+		log.Fatal(err)
+	}
+	bp.AddPoint(pt)
+
+	// Write the batch
+	if err := ic.Write(bp); err != nil {
+		log.Fatal(err)
+	}
+
 }
 		
-	// Create a new HTTPClient
-	// c, err := client.NewHTTPClient(client.HTTPConfig{
-	// 	Addr:     influxAddr,
-	// 	Username: username,
-	// 	Password: os.Getenv("INFLUXDB_PASS"),
-	// })
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 	// if err := json.NewDecoder(os.Stdin).Decode(&readout); err != nil {
 	// 	log.Println(err)
 	// }
@@ -65,31 +99,4 @@ func main() {
 	// 	fmt.Printf("%+v\n", readout.Measurements[i])
 	// }
 	// fmt.Println(readout.Name)
-	// // Create a new point batch
-	// bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-	// 	Database:  MyDB,
-	// 	Precision: "s",
-	// })
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // Create a point and add to batch
-	// tags := map[string]string{"cpu": "cpu-total"}
-	// fields := map[string]interface{}{
-	// 	"idle":   10.1,
-	// 	"system": 53.3,
-	// 	"user":   46.6,
-	// }
-
-	// pt, err := client.NewPoint("cpu_usage", tags, fields, time.Now())
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// bp.AddPoint(pt)
-
-	// // Write the batch
-	// if err := c.Write(bp); err != nil {
-	// 	log.Fatal(err)
-	// }
 
