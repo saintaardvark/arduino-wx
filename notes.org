@@ -35,3 +35,9 @@
     hte ones I made) as direction of antenna -- so pointing it between
     tx/rx seems to help a lot.
   - Next up: merge the JSON in.
+* <2017-05-22 Mon>
+  - Serial logger in go
+    - https://stackoverflow.com/questions/17599232/reading-from-serial-port-with-while-loop
+    - so need bufio + serial
+    - also good background: https://reprage.com/post/using-golang-to-connect-raspberrypi-and-arduino
+    - https://github.com/jcw/jeebus/blob/master/gadgets/serial/serial.go
