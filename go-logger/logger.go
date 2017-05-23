@@ -35,8 +35,9 @@ var measure, value string
 
 func splitLine(s string) (measure string, value float64, err error) {
 	// FIXME: Account for errors in all this
-	if strings.Index(reply, ":") < 0 {
-		return nil, nil, err.New("Can't find colon in line, don't know how to split it")
+	if strings.Index(s, ":") < 0 {
+		return "", 0, errors.New("Can't find colon in line, don't know how to split it")
+	}
 	}
 	reply = strings.Trim(reply, "{}")
 	line := strings.Split(reply, ":")
