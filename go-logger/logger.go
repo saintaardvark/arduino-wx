@@ -108,17 +108,4 @@ func main() {
 	if err := ic.Write(bp); err != nil {
 		log.Fatal(err)
 	}
-
 }
-		
-	// if err := json.NewDecoder(os.Stdin).Decode(&readout); err != nil {
-	// 	log.Println(err)
-	// }
-	// fmt.Println("readout:")
-	// fmt.Printf("%+v\n", readout)
-	// fmt.Println("Measurements:")
-	// for i := range readout.Measurements {
-	// 	fmt.Printf("%+v\n", readout.Measurements[i])
-	// }
-	// fmt.Println(readout.Name)
-
