@@ -43,6 +43,11 @@ func splitLine(s string) (measure string, value float64, err error) {
 	s = strings.Trim(s, "{}")
 	line := strings.Split(s, ":")
 	measure = line[0]
+	// Before parsing, need to remove units:
+	// Humidity -> "%"
+	// Pressure -> "hP"
+	// Prcp -> "NA"
+	// Temp -> "C"
 	if value, err = strconv.ParseFloat(line[1], 64); err != nil {
 		return "", 0, err
 	}
