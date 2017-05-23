@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -38,10 +39,12 @@ func splitLine(s string) (measure string, value float64, err error) {
 	if strings.Index(s, ":") < 0 {
 		return "", 0, errors.New("Can't find colon in line, don't know how to split it")
 	}
+	s = strings.Trim(s, "{}")
+	line := strings.Split(s, ":")
+	measure = line[0]
+	if value, err = strconv.ParseFloat(line[1], 64); err != nil {
+		return "", 0, err
 	}
-	reply = strings.Trim(reply, "{}")
-	line := strings.Split(reply, ":")
-	measure, value := line[0], line[1]
 	return measure, value, nil
 }
 
