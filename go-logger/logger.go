@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/tarm/serial"
@@ -30,6 +31,18 @@ const (
 
 // var readout Message
 
+var measure, value string
+
+func splitLine(s string) (measure string, value float64, err error) {
+	// FIXME: Account for errors in all this
+	if strings.Index(reply, ":") < 0 {
+		return nil, nil, err.New("Can't find colon in line, don't know how to split it")
+	}
+	reply = strings.Trim(reply, "{}")
+	line := strings.Split(reply, ":")
+	measure, value := line[0], line[1]
+	return measure, value, nil
+}
 
 func main() {
 	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
@@ -42,14 +55,15 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Opened.  Next up: reading.")
+	fmt.Println("Opened. Next up: reading.")
 	reader := bufio.NewReader(s)
 	reply, err := reader.ReadString('}')
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(reply)
-	fmt.Println("Now to try connecting to InfluxDB.")
+	measure, value := splitLine(reply)
+	fmt.Printf("%s: %s\n", measure, value)
+	fmt.Println("Next up: connecting to InfluxDB.")
 	// Create a new HTTPClient
 	ic, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     influxAddr,
