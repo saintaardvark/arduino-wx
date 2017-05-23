@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tarm/serial"
 	"github.com/influxdata/influxdb/client/v2"
+	"github.com/tarm/serial"
 )
 
 const (
