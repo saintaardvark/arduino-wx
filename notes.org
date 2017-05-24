@@ -41,3 +41,11 @@
     - so need bufio + serial
     - also good background: https://reprage.com/post/using-golang-to-connect-raspberrypi-and-arduino
     - https://github.com/jcw/jeebus/blob/master/gadgets/serial/serial.go
+* <2017-05-24 Wed>
+  - Test suite!
+    - Aha, floating point precision means numbers are off.  That's
+      okay, need to figure out how to get the conversion to just say
+      "That's enough"
+    - *Think* the two error tests are passing...should move them to
+      separate tst
+    - Need to switch to float64? Book says 64 preferred over 32.
