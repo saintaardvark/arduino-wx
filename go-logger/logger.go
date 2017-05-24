@@ -20,11 +20,11 @@ const (
 	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
 )
 
-// type Measurement struct {
-// 	Name  string
-// 	Value float32
-// 	Units string
-// }
+type Measurement struct {
+	Name  string
+	Value float64
+	Units string
+}
 
 // type Message struct {
 // 	Name         string
@@ -35,23 +35,26 @@ const (
 
 var measure, value string
 
-func splitLine(s string) (measure string, value float64, err error) {
+func SplitLine(s string) (measure Measurement, err error) {
 	// FIXME: Account for errors in all this
+	m := Measurement{"", 0.0, ""}
 	if strings.Index(s, ":") < 0 {
-		return "", 0, errors.New("Can't find colon in line, don't know how to split it")
+		return m, errors.New("Can't find colon in line, don't know how to split it")
 	}
 	s = strings.Trim(s, "{}")
 	line := strings.Split(s, ":")
-	measure = line[0]
+	m.Name = line[0]
 	// Before parsing, need to remove units:
 	// Humidity -> "%"
 	// Pressure -> "hP"
 	// Prcp -> "NA"
 	// Temp -> "C"
-	if value, err = strconv.ParseFloat(line[1], 64); err != nil {
-		return "", 0, err
+	vals := strings.Fields(line[1])
+	m.Units = vals[1]
+	if m.Value, err = strconv.ParseFloat(vals[0], 32); err != nil {
+		err = errors.New("Can't figure out value of that measurement")
 	}
-	return measure, value, nil
+	return m, err
 }
 
 func main() {
@@ -71,11 +74,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	measure, value, err := splitLine(reply)
+	measure, err := SplitLine(reply)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%s: %f\n", measure, value)
+	fmt.Printf("%s: %f\n", measure.Name, measure.Value)
 	fmt.Println("Next up: connecting to InfluxDB.")
 	// Create a new HTTPClient
 	ic, err := client.NewHTTPClient(client.HTTPConfig{
