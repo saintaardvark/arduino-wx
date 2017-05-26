@@ -51,7 +51,7 @@ func SplitLine(s string) (measure Measurement, err error) {
 	// Temp -> "C"
 	vals := strings.Fields(line[1])
 	m.Units = vals[1]
-	if m.Value, err = strconv.ParseFloat(vals[0], 32); err != nil {
+	if m.Value, err = strconv.ParseFloat(vals[0], 64); err != nil {
 		err = errors.New("Can't figure out value of that measurement")
 	}
 	return m, err
