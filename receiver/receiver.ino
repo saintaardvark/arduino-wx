@@ -1,14 +1,56 @@
-#include <PinChangeInterruptHandler.h>
-#include <RFReceiver.h>
+#include <SPI.h>
+#include "RF24.h"
 
-// Listen on digital pin 2
-#define PULSE_LENGTH     500
 #define LEDPIN           13
 
-RFReceiver receiver(2, PULSE_LENGTH);
-String payload;
+/*
+
+  Okay.  So:
+
+  When using 433 MHz, I was building up one string with everything,
+  and transmitting that.  When I switched to 2.4HGz, I thought I could
+  do the same -- but it turns out that there's a max payload size of
+  32 bytes
+  (https://arduino.stackexchange.com/questions/8185/increasing-payload-size-above-32-bytes-using-nrf24l01).
+
+  Thus, change o' plan: we now transmit each measurement separately,
+  and ensure a reasonable payload size.
+
+  Format of message:
+  {Temp: 19.30 C}
+
+  "{": start of data (1 char)
+  "XXXX: ": Measurement type (6 char)
+  "XXXX.XX ": Measurement (8 char)
+  "XX": Unit (2 char)
+  "}": end of data (1 char)
+
+  Null term: 1 char (not sure if this is needed)
+
+  Total: 19 chars
+
+*/
+#define MAX_PAYLOAD_LEN 66
+
+char payload[MAX_PAYLOAD_LEN];
+
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
+RF24 radio(7,8);
+byte addresses[][6] = {"1Node","2Node"};
+// Used to control whether this node is sending or receiving
+bool role = 0;
+
 const char endOfMessage = '|';
 int index;
+
+/* Uncomment for helpful debug messages */
+/* #define DEBUGGING 1 */
+
+void debug(String msg) {
+#ifdef DEBUGGING
+        Serial.println(msg);
+#endif  /* DEBUGGING */
+}
 
 void flashyflashy() {
         for (int i = 0 ; i < 2 ; i++ ) {
@@ -21,15 +63,47 @@ void flashyflashy() {
 
 void setup() {
         Serial.begin(9600);
+        Serial.println("radio.begin");
+        radio.begin();
+
+        // Set the PA Level low to prevent power supply related issues since this is a
+        // getting_started sketch, and the likelihood of close proximity of the devices. RF24_PA_MAX is default.
+        radio.setPALevel(RF24_PA_LOW);
+
+        // Open a writing and reading pipe on each radio, with opposite addresses
+        debug("Setting up pipes");
+        debug("Writing to 0, reading from 1");
+        radio.openWritingPipe(addresses[0]);
+        radio.openReadingPipe(1,addresses[1]);
+
+        radio.startListening();
         Serial.println("Waiting...");
-        receiver.begin();
 }
 
 void loop() {
-        char msg[MAX_PACKAGE_SIZE];
-        byte senderId = 0;
-        byte packageId = 0;
-        byte len = receiver.recvPackage((byte *)msg, &senderId, &packageId);
-        payload = String(msg);
-        Serial.println(payload);
+
+        unsigned long got_time;
+        int len = 0;
+
+        if( radio.available()){
+                // Variable for the received timestamp
+                while (radio.available()) {                                   // While there is data ready
+                        len = radio.getDynamicPayloadSize();
+                        debug(String(len));
+                        radio.read(&payload, len);              // Get the payload
+                }
+                debug("Payload received!");
+                Serial.println(payload);
+                radio.stopListening();                                        // First, stop listening so we can talk
+                radio.write( &got_time, sizeof(unsigned long));              // Send the final one back.
+                radio.startListening();                                       // Now, resume listening so we catch the next packets.
+                debug(F("Response sent."));
+        }
+
+        /* char msg[MAX_PACKAGE_SIZE]; */
+        /* byte senderId = 0; */
+        /* byte packageId = 0; */
+        /* byte len = receiver.recvPackage((byte *)msg, &senderId, &packageId); */
+        /* payload = String(msg); */
+        /* Serial.println(payload); */
 }

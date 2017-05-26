@@ -1,10 +1,38 @@
-#include <RFTransmitter.h>
-#include <Wire.h>
+#include <SPI.h>
+#include "RF24.h"
 #include <Adafruit_Sensor.h>
-#include <ArduinoJson.h>
+
+/*
+
+  Okay.  So:
+
+  When using 433 MHz, I was building up one string with everything,
+  and transmitting that.  When I switched to 2.4HGz, I thought I could
+  do the same -- but it turns out that there's a max payload size of
+  32 bytes
+  (https://arduino.stackexchange.com/questions/8185/increasing-payload-size-above-32-bytes-using-nrf24l01).
+
+  Thus, change o' plan: we now transmit each measurement separately,
+  and ensure a reasonable payload size.
+
+  Format of message:
+  {Temp: 19.30 C}
+
+  "{": start of data (1 char)
+  "XXXX: ": Measurement type (6 char)
+  "XXXX.XX ": Measurement (8 char)
+  "XX": Unit (2 char)
+  "}": end of data (1 char)
+
+  Null term: 1 char (not sure if this is needed)
+
+  Total: 19 chars
+
+*/
+#define MAX_PAYLOAD_LEN 66
 
 /* Uncomment if you have a BMP sensor */
-/* #define HAVE_BMP 1 */
+#define HAVE_BMP 1
 
 # ifdef HAVE_BMP
 // Barometer / Temp
@@ -13,36 +41,27 @@
 #include <Adafruit_BMP085_U.h>
 Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 sensors_event_t event;
-#endif
+#endif  /* HAVE_BMP */
+
+/* Uncomment if you have precip sensor */
+#define HAVE_PRECIP 1
 
 // Humidity sensor
 #include "DHT.h"
+/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
+RF24 radio(7,8);
 
-// Copied from RFReceiver.h
-const byte MAX_PAYLOAD_SIZE = 80;
-char VWMsgBuf[MAX_PAYLOAD_SIZE];
+byte addresses[][6] = {"1Node","2Node"};
+
 String final_msg_string;
 
 #define DHTPIN 2     // what digital pin we're connected to
-#define DHTTYPE DHT11   // DHT 22  (AM2302), AM2321
+#define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
-#define TRANSMITTER_PIN  11
 #define LEDPIN           13
 #define PRECIP_PIN       A0
-
-// Needed for JSON serialization
-#define MAX_SENSORS 2
-/*
-   Not sure why -- but when calculating NODEDATA_JSON_SIZE,
-   MAX_SENSORS needs to be incremented by one; without this, the last
-   measurement won't appear in the JSON.  Similarly the multiplicand
-   at the end needs to be number of entries in struct SensorData + 1;
-   without this, the last element of the struct won't appear in the
-   JSON.
-*/
-
-#define NODEDATA_JSON_SIZE (JSON_OBJECT_SIZE(1 + (MAX_SENSORS + 1) * 4))
+#define MAX_SENSORS      4
 
 struct SensorData {
         const char* name;
@@ -56,31 +75,23 @@ struct NodeData {
 };
 
 /* NODE_ID is needed for the transmitter. */
-#define NODE_ID          2
-/*
-   NODE_ID_STR is needed to construct the JSON; need to have it as a
-   quoted string like this in order to make it show up; otherwise it's
-   just blank.
- */
-#define NODE_ID_STR      "2"
+#define NODE_ID          3
 NodeData node;
 
 #define SLEEPYTIME 10000
 
 /* Uncomment for helpful debug messages */
-/* #define DEBUGGING 1 */
-
-// Send on digital pin 11 and identify as node 1
-/* Try setting delay to longer... */
-#define PULSE_LENGTH     500
-#define BACKOFFDELAY    1000
-RFTransmitter transmitter(TRANSMITTER_PIN, NODE_ID, PULSE_LENGTH, BACKOFFDELAY);
+#define DEBUGGING 1
 
 float humid;
 float temp;
 int precip;
 
-int counter = 0;
+void debug(String msg) {
+#ifdef DEBUGGING
+        Serial.println(msg);
+#endif  /* DEBUGGING */
+}
 
 void flashyflashy() {
         digitalWrite(LEDPIN, HIGH);
@@ -89,52 +100,49 @@ void flashyflashy() {
         delay(125);
 }
 
-// Thanks, bblanchon!
-// https://github.com/bblanchon/ArduinoJson/wiki/FAQ#whats-the-best-way-to-use-the-library
-void serialize(const NodeData& node, char* json, size_t maxSize) {
-        StaticJsonBuffer<NODEDATA_JSON_SIZE> jsonBuffer;
-        JsonObject& root = jsonBuffer.createObject();
-        root["name"] = node.name;
-        JsonArray& data = root.createNestedArray("data");
-        int i;
-        for (i=0; i < MAX_SENSORS; i++) {
-                JsonObject& measurement = data.createNestedObject();
-                measurement["name"] = node.data[i]->name;
-                measurement["value"] = node.data[i]->value;
-                measurement["units"] = node.data[i]->units;
-#ifdef DEBUGGING
-                Serial.println("DEBUG: node.name == " + String(node.name));
-                Serial.println("DEBUG: node.data[" + String(i) + "]");
-                Serial.println("DEBUG: Name: " + String(node.data[i]->name));
-                Serial.println("DEBUG: Value: " + String(node.data[i]->value));
-                Serial.println("DEBUG: Units: " + String(node.data[i]->units));
-#endif
+void transmit(String msg) {
+        radio.stopListening();
+        /* See https://forum.arduino.cc/index.php?topic=341963.0 */
+        char payload[MAX_PAYLOAD_LEN];
+        msg.toCharArray(payload, MAX_PAYLOAD_LEN);
+        Serial.println(msg);
+        flashyflashy();
+        if (!radio.write(&payload, strlen(payload))){
+                Serial.println(F("failed"));
         }
-        root.printTo(json, maxSize);
-}
-
-// Thanks, linhartr22!
-// https://github.com/linhartr22/433_MHz_Wireless_TX-RX_Demo/blob/master/TX_Temp_Test/TX_Temp_Test.ino#L80-L88
-void VWTX(String VWMsgStr) {
-        VWMsgStr.toCharArray(VWMsgBuf, MAX_PAYLOAD_SIZE);
-        uint8_t VWMsgBufLen = strlen(VWMsgBuf);
-        digitalWrite(13, true); // Flash a light to show transmitting
-        transmitter.send((byte *)VWMsgBuf, VWMsgBufLen);
-        digitalWrite(13, false); // Flash a light to show transmitting
-        delay(1000);
-        digitalWrite(13, true); // Flash a light to show transmitting
-        transmitter.resend((byte *)VWMsgBuf, VWMsgBufLen);
-        digitalWrite(13, false); // Flash a light to show transmitting
+        flashyflashy();
+        radio.startListening();
 }
 
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
         Serial.println("Reboot");
+
+        /* DHT init */
         Serial.println("dht.begin");
         dht.begin();
 
-        /* Initialise the sensor */
+        /* NRF24L01 init */
+        Serial.println("radio.begin");
+        radio.begin();
+        radio.setPayloadSize(MAX_PAYLOAD_LEN);
+        /*
+          Set the PA Level low to prevent power supply related issues.
+          Since this is a getting_started sketch, and the likelihood
+          of close proximity of the devices,  RF24_PA_MAX is default.
+
+          FIXME: Refactor to make the addresses clearer.
+        */
+
+        radio.setPALevel(RF24_PA_LOW);
+        debug("Setting up pipes");
+        debug("Writing to 1, reading from 0");
+        radio.openWritingPipe(addresses[1]);
+        radio.openReadingPipe(1, addresses[0]);
+        radio.startListening();
+
+        /* BMP init */
 
 #ifdef HAVE_BMP
         Serial.println("Pressure Sensor Test");
@@ -144,68 +152,95 @@ void setup() {
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
                 while(1);
         }
-#endif
+#endif  /* HAVE_BMP */
+
+        /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
+        Serial.println("LET'S DO THIS!");
+        Serial.println("---");
+}
+
+String build_msg(SensorData reading) {
+        String msg;
+        msg = "{";
+        msg += String(reading.name);
+        msg += ": ";
+        msg += String(reading.value);
+        msg += " ";
+        msg += String(reading.units);
+        msg += "}";
+        return msg;
 }
 
 void loop() {
 
-        humid = dht.readHumidity();
-        temp = dht.readTemperature();
-
         SensorData humid_data;
         SensorData temp_data;
 
-        humid_data.name = "humid";
+        /*
+          You'd *think* you could just assign the result of
+          dht.readHumidity() directly to humid_data.value.  Turns out
+          that's not the case; if you do that, you just get 0 in
+          there.  Same applies to dht.readTemperature.
+        */
+        humid = dht.readHumidity();
+        humid_data.name = "Humd";
         humid_data.units = "%";
         humid_data.value = humid;
 
-        temp_data.name = "temp";
+        transmit(build_msg(humid_data));
+
+        temp = dht.readTemperature();
+        temp_data.name = "Temp";
         temp_data.units = "C";
-        temp_data.value = temp;
+        temp_data.value = dht.readTemperature();
+        transmit(build_msg(temp_data));
 
-        node.data[0] = &humid_data;
-        node.data[1] = &temp_data;
-
+        /* node.data[0] = &humid_data; */
+        /* node.data[1] = &temp_data; */
 
 #ifdef HAVE_BMP
-        bmp.getEvent(&event);
-        precip = 1023 - analogRead(PRECIP_PIN);
         SensorData pres_data;
-        SensorData precip_data;
-
-        pres_data.name = "pressure";
-        pres_data.units = "hPA";
+        bmp.getEvent(&event);
+        pres_data.name = "Pres";
+        pres_data.units = "hP";
         pres_data.value = event.pressure;
+        /* node.data[2] = &pres_data; */
+        transmit(build_msg(pres_data));
+#endif  /* HAVE_BMP */
 
-        precip_data.name = "precip";
-        precip_data.units = "none";
-        precip_data.value = precip;
+#ifdef HAVE_PRECIP
+        SensorData precip_data;
+        precip_data.name = "Prcp";
+        precip_data.units = "NA";
+        precip_data.value = 1023 - analogRead(PRECIP_PIN);
+        /* node.data[3] = &precip_data;  */
+        transmit(build_msg(precip_data));
+#endif  /* HAVE_PRECIP */
 
-
-        node.data[2] = &pres_data;
-        node.data[3] = &precip_data;
-#endif
-        node.name = (char*) NODE_ID_STR;
-        char json_for_serial[NODEDATA_JSON_SIZE];
-        serialize(node, json_for_serial, NODEDATA_JSON_SIZE);
+        /* node.name = (char*) NODE_ID_STR; */
         // Doesn't seem to be an easy way to get the NODE_ID out on
         // the receiving end...
         /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
         /* final_msg_string += "Temp: " + String(temp) + " C , "; */
 
-        final_msg_string = "{";
-        final_msg_string += "Tmp " + String(temp) + " C,";
-#ifdef HAVE_BMP
-        final_msg_string += "Prs " + String(event.pressure) + " hP,";
-        /* AU == arbitrary units */
-        final_msg_string += "Prc " + String(precip) + " AU,";
-#endif
-        final_msg_string += "Hmd " + String(humid) + " %,";
-        final_msg_string += "}";
+/*         final_msg_string = "{"; */
+/*         final_msg_string += "Tmp " + String(temp) + " C,"; */
+/*         final_msg_string += "Hmd " + String(humid) + " %,"; */
+
+/* #ifdef HAVE_BMP */
+/*         final_msg_string += "Prs " + String(event.pressure) + " hP,"; */
+/* #endif  /\* HAVE_BMP *\/ */
+
+/* #ifdef HAVE_PRECIP */
+/*         /\* AU == arbitrary units *\/ */
+/*         final_msg_string += "Prc " + String(precip) + " AU,"; */
+/* #endif  /\* HAVE_PRECIP *\/ */
+
+/*         final_msg_string += "}"; */
 
 
-        VWTX(final_msg_string);
+        transmit(final_msg_string);
         Serial.println(final_msg_string);
         delay(SLEEPYTIME);
 }

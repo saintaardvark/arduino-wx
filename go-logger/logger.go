@@ -1,13 +1,17 @@
 package main
 
 import (
-	"encoding/json"
+	"bufio"
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/influxdata/influxdb/client/v2"
+	"github.com/tarm/serial"
 )
 
 const (
@@ -18,37 +22,77 @@ const (
 
 type Measurement struct {
 	Name  string
-	Value float32
+	Value float64
 	Units string
 }
 
-type Message struct {
-	Name         string
-	Measurements []*Measurement
+// This lets me compare directly in the test file.  See:
+// https://stackoverflow.com/questions/36091610/comparing-errors-in-go
+var colonErr = fmt.Errorf("Can't find colon in line, don't know how to split it")
+
+// type Message struct {
+// 	Name         string
+// 	Measurements []*Measurement
+// }
+
+// var readout Message
+
+var measure, value string
+
+func SplitLine(s string) (measure Measurement, err error) {
+	// FIXME: Account for errors in all this
+	m := Measurement{"", 0.0, ""}
+	if strings.Index(s, ":") < 0 {
+		return m, colonErr
+	}
+	s = strings.Trim(s, "{}")
+	line := strings.Split(s, ":")
+	m.Name = line[0]
+	// Before parsing, need to remove units:
+	// Humidity -> "%"
+	// Pressure -> "hP"
+	// Prcp -> "NA"
+	// Temp -> "C"
+	vals := strings.Fields(line[1])
+	m.Units = vals[1]
+	if m.Value, err = strconv.ParseFloat(vals[0], 64); err != nil {
+		err = errors.New("Can't figure out value of that measurement")
+	}
+	return m, err
 }
 
-var readout Message
-
 func main() {
+	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
+	if exists == false {
+		log.Fatal("Can't proceed without environment var INFLUXDB_PASS!")
+	}
+	usbdev := "/dev/ttyUSB0"
+	c := &serial.Config{Name: usbdev, Baud: 9600}
+	s, err := serial.OpenPort(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Opened. Next up: reading.")
+	reader := bufio.NewReader(s)
+	reply, err := reader.ReadString('}')
+	if err != nil {
+		panic(err)
+	}
+	measure, err := SplitLine(reply)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%s: %f\n", measure.Name, measure.Value)
+	fmt.Println("Next up: connecting to InfluxDB.")
 	// Create a new HTTPClient
-	c, err := client.NewHTTPClient(client.HTTPConfig{
+	ic, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     influxAddr,
 		Username: username,
-		Password: os.Getenv("INFLUXDB_PASS"),
+		Password: influxPass,
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := json.NewDecoder(os.Stdin).Decode(&readout); err != nil {
-		log.Println(err)
-	}
-	fmt.Println("readout:")
-	fmt.Printf("%+v\n", readout)
-	fmt.Println("Measurements:")
-	for i := range readout.Measurements {
-		fmt.Printf("%+v\n", readout.Measurements[i])
-	}
-	fmt.Println(readout.Name)
 	// Create a new point batch
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  MyDB,
@@ -73,7 +117,7 @@ func main() {
 	bp.AddPoint(pt)
 
 	// Write the batch
-	if err := c.Write(bp); err != nil {
+	if err := ic.Write(bp); err != nil {
 		log.Fatal(err)
 	}
 }
