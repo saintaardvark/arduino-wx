@@ -26,6 +26,10 @@ type Measurement struct {
 	Units string
 }
 
+// This lets me compare directly in the test file.  See:
+// https://stackoverflow.com/questions/36091610/comparing-errors-in-go
+var colonErr = fmt.Errorf("Can't find colon in line, don't know how to split it")
+
 // type Message struct {
 // 	Name         string
 // 	Measurements []*Measurement
@@ -39,7 +43,7 @@ func SplitLine(s string) (measure Measurement, err error) {
 	// FIXME: Account for errors in all this
 	m := Measurement{"", 0.0, ""}
 	if strings.Index(s, ":") < 0 {
-		return m, errors.New("Can't find colon in line, don't know how to split it")
+		return m, colonErr
 	}
 	s = strings.Trim(s, "{}")
 	line := strings.Split(s, ":")
