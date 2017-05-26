@@ -49,3 +49,33 @@
     - *Think* the two error tests are passing...should move them to
       separate tst
     - Need to switch to float64? Book says 64 preferred over 32.
+    - Tests working!
+  - Merged nrf24l01 branch to master.
+* <2017-05-26 Fri>
+  - Trying to remember InfluxDB stuff...
+    - https://docs.influxdata.com/influxdb/v1.2/concepts/key_concepts/
+    - Database is "weather"
+    - measurement: "conceptually similar to a table."  Looking in
+      current DB, I have a shitton of measurements, so let's break it
+      out a bit:
+      - humidity
+      - precipitation
+      - pressure
+      - temperature
+    - field keys/values/units:
+      - For temp:
+        | Value | 22 |
+        | Units |  C |
+      - For humidity:
+        | Value | 72 |
+        | Units |  % |
+      - etc
+      - not sure if units needed
+k    - Tags keys/values:
+      | Location | BBY   |
+      | Arduino  | Node1 |
+      | Lat      | 49.2  |
+      | Long     | 112.3 |
+      | ...      |       |
+    - All right, now this is starting to make sense again
+    -

@@ -103,14 +103,23 @@ func main() {
 	}
 
 	// Create a point and add to batch
-	tags := map[string]string{"cpu": "cpu-total"}
+	tags := map[string]string{
+		"location": "BBY",
+		"arduino":  "node1",
+		"lat":      "49.284",
+		"long":     "-123.021",
+	}
 	fields := map[string]interface{}{
-		"idle":   10.1,
-		"system": 53.3,
-		"user":   46.6,
+		measure.Name: measure.Value,
 	}
 
-	pt, err := client.NewPoint("cpu_usage", tags, fields, time.Now())
+	measureAbbrevs := map[string]string{
+		"humd": "humidity",
+		"prcp": "precipitation",
+		"pres": "pressure",
+		"temp": "temperature",
+	}
+	pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
 	if err != nil {
 		log.Fatal(err)
 	}
