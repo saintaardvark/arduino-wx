@@ -120,13 +120,16 @@ func main() {
 		"temp": "temperature",
 	}
 	pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
+	log.Printf("FIXME: Trying to log that under %s\n", measureAbbrevs[measure.Name])
 	if err != nil {
+		fmt.Println("FIXME:Boo, error in client.NewPoint")
 		log.Fatal(err)
 	}
 	bp.AddPoint(pt)
 
 	// Write the batch
 	if err := ic.Write(bp); err != nil {
+		fmt.Println("FIXME: Boo, error in ic.Write")
 		log.Fatal(err)
 	}
 }
