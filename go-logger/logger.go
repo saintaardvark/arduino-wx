@@ -72,64 +72,71 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Opened. Next up: reading.")
-	reader := bufio.NewReader(s)
-	reply, err := reader.ReadString('}')
-	if err != nil {
-		panic(err)
-	}
-	measure, err := SplitLine(reply)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s: %f\n", measure.Name, measure.Value)
-	fmt.Println("Next up: connecting to InfluxDB.")
-	// Create a new HTTPClient
-	ic, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     influxAddr,
-		Username: username,
-		Password: influxPass,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	// Create a new point batch
-	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-		Database:  MyDB,
-		Precision: "s",
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	
+	fmt.Println("Opened. Next up: looping.")
+	for {
+		fmt.Println("About to read...")
+		reader := bufio.NewReader(s)
+		reply, err := reader.ReadString('}')
+		if err != nil {
+			log.Println("Problem reading: ", err)
+		}
+		log.Println(reply)
+		measure, err := SplitLine(reply)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		fmt.Printf("Read: %s: %f\n", measure.Name, measure.Value)
+		fmt.Println("Next up: connecting to InfluxDB.")
+		// Create a new HTTPClient
+		ic, err := client.NewHTTPClient(client.HTTPConfig{
+			Addr:     influxAddr,
+			Username: username,
+			Password: influxPass,
+		})
+		if err != nil {
+			log.Println(err)
+		}
+		// Create a new point batch
+		bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+			Database:  MyDB,
+			Precision: "s",
+		})
+		if err != nil {
+			log.Println(err)
+		}
 
-	// Create a point and add to batch
-	tags := map[string]string{
-		"location": "BBY",
-		"arduino":  "node1",
-		"lat":      "49.284",
-		"long":     "-123.021",
-	}
-	fields := map[string]interface{}{
-		measure.Name: measure.Value,
-	}
+		// Create a point and add to batch
+		tags := map[string]string{
+			"location": "BBY",
+			"arduino":  "node1",
+			"lat":      "49.284",
+			"long":     "-123.021",
+		}
+		fields := map[string]interface{}{
+			measure.Name: measure.Value,
+		}
 
-	measureAbbrevs := map[string]string{
-		"humd": "humidity",
-		"prcp": "precipitation",
-		"pres": "pressure",
-		"temp": "temperature",
-	}
-	pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
-	log.Printf("FIXME: Trying to log that under %s\n", measureAbbrevs[measure.Name])
-	if err != nil {
-		fmt.Println("FIXME:Boo, error in client.NewPoint")
-		log.Fatal(err)
-	}
-	bp.AddPoint(pt)
+		measureAbbrevs := map[string]string{
+			"Humd": "humidity",
+			"Prcp": "precipitation",
+			"Pres": "pressure",
+			"Temp": "temperature",
+		}
+		pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
+		log.Printf("FIXME: measure.Name is %s\n", measure.Name)
+		log.Printf("FIXME: Trying to log that under %s\n", measureAbbrevs[measure.Name])
+		if err != nil {
+			fmt.Println("FIXME:Boo, error in client.NewPoint")
+			log.Println(err)
+		}
+		bp.AddPoint(pt)
 
-	// Write the batch
-	if err := ic.Write(bp); err != nil {
-		fmt.Println("FIXME: Boo, error in ic.Write")
-		log.Fatal(err)
+		// Write the batch
+		if err := ic.Write(bp); err != nil {
+			fmt.Println("FIXME: Boo, error in ic.Write")
+			log.Println(err)
+		}
 	}
 }
