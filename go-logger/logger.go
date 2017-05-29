@@ -49,6 +49,8 @@ func SplitLine(s string) (measure Measurement, err error) {
 	if strings.Index(s, ":") < 0 {
 		return m, colonErr
 	}
+	s = strings.Trim(s, `
+`)
 	s = strings.Trim(s, "{}")
 	line := strings.Split(s, ":")
 	m.Name = line[0]
@@ -76,7 +78,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	fmt.Println("Opened. Next up: looping.")
 	for {
 		fmt.Println("About to read...")

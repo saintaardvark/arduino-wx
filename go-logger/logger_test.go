@@ -16,6 +16,8 @@ var testTable = []struct {
 	{"Waiting...", Measurement{"", 0, ""}, incompleteReadErr},
 	{"radio.new", Measurement{"", 0, ""}, incompleteReadErr},
 	{"{Humd", Measurement{"", 0, ""}, incompleteReadErr},
+	{`
+{Humd: 33.10 %}`, Measurement{"Humd", 33.1, "%"}, nil},
 }
 
 func TestSplitLineName(t *testing.T) {
