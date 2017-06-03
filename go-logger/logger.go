@@ -49,8 +49,7 @@ func SplitLine(s string) (measure Measurement, err error) {
 	if strings.Index(s, ":") < 0 {
 		return m, colonErr
 	}
-	s = strings.Trim(s, `
-`)
+	s = strings.TrimSpace(s)
 	s = strings.Trim(s, "{}")
 	line := strings.Split(s, ":")
 	m.Name = line[0]
