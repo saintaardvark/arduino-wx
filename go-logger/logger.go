@@ -54,8 +54,11 @@ func SplitLine(s string) (measure Measurement, err error) {
 	if strings.Index(s, ":") < 0 {
 		return m, colonErr
 	}
-	s = strings.TrimSpace(s)
-	s = strings.Trim(s, "{}")
+	// Don't include left bracket itself
+	leftBracketPos := strings.Index(s, "{") + 1
+	rightBracketPos := strings.Index(s, "}")
+	s = s[leftBracketPos:rightBracketPos]
+	// log.Printf("[DEBUG] After Trim: %s", s)
 	line := strings.Split(s, ":")
 	m.Name = line[0]
 	// Before parsing, need to remove units:
