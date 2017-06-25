@@ -21,6 +21,8 @@ var testTable = []struct {
 	{` 
 
 {Humd: 33.10 %}`, Measurement{"Humd", 33.1, "%"}, nil},
+	{`failed
+{Humd: 33.10 %}`, Measurement{"Humd", 33.1, "%"}, nil},
 }
 
 func TestSplitLineName(t *testing.T) {
