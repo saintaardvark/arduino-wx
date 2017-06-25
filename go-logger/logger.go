@@ -73,8 +73,8 @@ func SplitLine(s string) (measure Measurement, err error) {
 }
 
 func main() {
-	fmt.Println("Githash: %s\n", githash)
-	fmt.Println("Build date: %s\n", buildstamp)
+	log.Println("Githash: %s\n", githash)
+	log.Println("Build date: %s\n", buildstamp)
 	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
 	if exists == false {
 		log.Fatal("[FATAL] Can't proceed without environment var INFLUXDB_PASS!")
@@ -86,7 +86,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("[FATAL] Can't open serial port: %s\n", err)
 	}
-	fmt.Println("Next up: connecting to InfluxDB.")
+	log.Println("[INFO] Next up: connecting to InfluxDB.")
 
 	// Create a new HTTPClient
 	ic, err := client.NewHTTPClient(client.HTTPConfig{
@@ -98,7 +98,7 @@ func main() {
 		log.Println(err)
 	}
 
-	fmt.Println("[INFO] Opened. Next up: looping.")
+	log.Println("[INFO] Opened. Next up: looping.")
 	for {
 		log.Println("[DEBUG] About to read...")
 		reply, err := reader.ReadString('}')
@@ -116,7 +116,7 @@ func main() {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		fmt.Printf("Read: %s: %f\n", measure.Name, measure.Value)
+		log.Printf("[INFO] Read: %s: %f\n", measure.Name, measure.Value)
 		// Create a new point batch
 		bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 			Database:  MyDB,
@@ -148,7 +148,7 @@ func main() {
 		log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
 		log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
 		if err != nil {
-			fmt.Printf("[WARN] Error in client.NewPoint: %s\n", err)
+			log.Printf("[WARN] Error in client.NewPoint: %s\n", err)
 		}
 		bp.AddPoint(pt)
 
