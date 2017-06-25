@@ -72,8 +72,8 @@ func SplitLine(s string) (measure Measurement, err error) {
 }
 
 func main() {
-	log.Println("Githash: %s\n", githash)
-	log.Println("Build date: %s\n", buildstamp)
+	log.Printf("Githash: %s\n", githash)
+	log.Printf("Build date: %s\n", buildstamp)
 	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
 	if exists == false {
 		log.Fatal("[FATAL] Can't proceed without environment var INFLUXDB_PASS!")
