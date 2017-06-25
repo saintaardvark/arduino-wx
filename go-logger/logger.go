@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -81,14 +82,26 @@ func main() {
 	usbdev := "/dev/ttyUSB0"
 	c := &serial.Config{Name: usbdev, Baud: 9600}
 	s, err := serial.OpenPort(c)
+	reader := bufio.NewReader(s)
 	if err != nil {
 		log.Fatal(err)
+	}
+	fmt.Println("Next up: connecting to InfluxDB.")
+
+	// Create a new HTTPClient
+	ic, err := client.NewHTTPClient(client.HTTPConfig{
+		Addr:     influxAddr,
+		Username: username,
+		Password: influxPass,
+	})
+	if err != nil {
+		log.Println(err)
 	}
 
 	fmt.Println("Opened. Next up: looping.")
 	for {
 		fmt.Println("About to read...")
-		reader := bufio.NewReader(s)
+
 		reply, err := reader.ReadString('}')
 		if err != nil {
 			log.Println("Problem reading: ", err)
@@ -100,16 +113,6 @@ func main() {
 			continue
 		}
 		fmt.Printf("Read: %s: %f\n", measure.Name, measure.Value)
-		fmt.Println("Next up: connecting to InfluxDB.")
-		// Create a new HTTPClient
-		ic, err := client.NewHTTPClient(client.HTTPConfig{
-			Addr:     influxAddr,
-			Username: username,
-			Password: influxPass,
-		})
-		if err != nil {
-			log.Println(err)
-		}
 		// Create a new point batch
 		bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 			Database:  MyDB,
@@ -128,6 +131,7 @@ func main() {
 		}
 		fields := map[string]interface{}{
 			measure.Name: measure.Value,
+
 		}
 
 		measureAbbrevs := map[string]string{
