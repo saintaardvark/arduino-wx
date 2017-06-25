@@ -77,14 +77,14 @@ func main() {
 	fmt.Println("Build date: %s\n", buildstamp)
 	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
 	if exists == false {
-		log.Fatal("Can't proceed without environment var INFLUXDB_PASS!")
+		log.Fatal("[FATAL] Can't proceed without environment var INFLUXDB_PASS!")
 	}
 	usbdev := "/dev/ttyUSB0"
 	c := &serial.Config{Name: usbdev, Baud: 9600}
 	s, err := serial.OpenPort(c)
 	reader := bufio.NewReader(s)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[FATAL] Can't open serial port: %s\n", err)
 	}
 	fmt.Println("Next up: connecting to InfluxDB.")
 
@@ -98,18 +98,22 @@ func main() {
 		log.Println(err)
 	}
 
-	fmt.Println("Opened. Next up: looping.")
+	fmt.Println("[INFO] Opened. Next up: looping.")
 	for {
-		fmt.Println("About to read...")
-
+		log.Println("[DEBUG] About to read...")
 		reply, err := reader.ReadString('}')
 		if err != nil {
-			log.Println("Problem reading: ", err)
+			log.Println("[WARN] Problem reading: ", err)
+			// Sleep for a second
+			time.Sleep(1 * time.Second)
+			continue
 		}
 		log.Println(reply)
 		measure, err := SplitLine(reply)
 		if err != nil {
-			log.Println(err)
+			log.Printf("[WARN] Could not split line: %s", err)
+			// Sleep for a second
+			time.Sleep(1 * time.Second)
 			continue
 		}
 		fmt.Printf("Read: %s: %f\n", measure.Name, measure.Value)
@@ -141,18 +145,16 @@ func main() {
 			"Temp": "temperature",
 		}
 		pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
-		log.Printf("FIXME: measure.Name is %s\n", measure.Name)
-		log.Printf("FIXME: Trying to log that under %s\n", measureAbbrevs[measure.Name])
+		log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
+		log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
 		if err != nil {
-			fmt.Println("FIXME:Boo, error in client.NewPoint")
-			log.Println(err)
+			fmt.Printf("[WARN] Error in client.NewPoint: %s\n", err)
 		}
 		bp.AddPoint(pt)
 
 		// Write the batch
 		if err := ic.Write(bp); err != nil {
-			fmt.Println("FIXME: Boo, error in ic.Write")
-			log.Println(err)
+			log.Printf("[WARN] Error writing to Influxdb: %s\n", err)
 		}
 	}
 }
