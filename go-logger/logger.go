@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -135,7 +134,6 @@ func main() {
 		}
 		fields := map[string]interface{}{
 			measure.Name: measure.Value,
-
 		}
 
 		measureAbbrevs := map[string]string{
