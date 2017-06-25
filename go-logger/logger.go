@@ -85,11 +85,16 @@ func main() {
 		reply, err := reader.ReadString('}')
 		if err != nil {
 			log.Println("[WARN] Problem reading: ", err)
+			// Sleep for a second
+			time.Sleep(1 * time.Second)
+			continue
 		}
 		log.Println(reply)
 		measure, err := SplitLine(reply)
 		if err != nil {
 			log.Printf("[WARN] Could not split line: %s", err)
+			// Sleep for a second
+			time.Sleep(1 * time.Second)
 			continue
 		}
 		fmt.Printf("Read: %s: %f\n", measure.Name, measure.Value)
