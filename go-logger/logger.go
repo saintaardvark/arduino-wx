@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	githash = "deadbeef"
+	githash    = "deadbeef"
 	buildstamp = "June 6, 2017"
 )
 
