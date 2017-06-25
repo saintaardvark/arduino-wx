@@ -20,6 +20,11 @@ const (
 	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
 )
 
+var (
+	githash = "deadbeef"
+	buildstamp = "June 6, 2017"
+)
+
 type Measurement struct {
 	Name  string
 	Value float64
@@ -68,6 +73,8 @@ func SplitLine(s string) (measure Measurement, err error) {
 }
 
 func main() {
+	fmt.Println("Githash: %s\n", githash)
+	fmt.Println("Build date: %s\n", buildstamp)
 	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
 	if exists == false {
 		log.Fatal("Can't proceed without environment var INFLUXDB_PASS!")
