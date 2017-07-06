@@ -83,11 +83,13 @@ func main() {
 	}
 	usbdev := "/dev/ttyUSB0"
 	c := &serial.Config{Name: usbdev, Baud: 9600}
-	s, err := serial.OpenPort(c)
-	reader := bufio.NewReader(s)
-	if err != nil {
-		log.Fatalf("[FATAL] Can't open serial port: %s\n", err)
+	serialPort, err := serial.OpenPort(c)
+	for err != nil {
+		log.Printf("[WARN] Can't open serial port, trying to sleep it off: %s\n", err)
+		time.Sleep(10 * time.Second)
+		serialPort, err = serial.OpenPort(c)
 	}
+	reader := bufio.NewReader(serialPort)
 	log.Println("[INFO] Next up: connecting to InfluxDB.")
 
 	// Create a new HTTPClient
