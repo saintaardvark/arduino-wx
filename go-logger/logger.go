@@ -78,6 +78,48 @@ func SplitLine(s string) (measure Measurement, err error) {
 	return m, err
 }
 
+// logToInfluxdb send a measurement to an InfluxDB server
+func logToInfluxDB(ic client.Client, measure Measurement) {
+	// Create a new point batch
+	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
+		Database:  MyDB,
+		Precision: "s",
+	})
+	if err != nil {
+		log.Println(err)
+	}
+
+	// Create a point and add to batch
+	tags := map[string]string{
+		"location": location,
+		"arduino":  arduino,
+		"lat":      lat,
+		"long":     long,
+	}
+	fields := map[string]interface{}{
+		measure.Name: measure.Value,
+	}
+
+	measureAbbrevs := map[string]string{
+		"Humd": "humidity",
+		"Prcp": "precipitation",
+		"Pres": "pressure",
+		"Temp": "temperature",
+	}
+	pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
+	log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
+	log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
+	if err != nil {
+		log.Printf("[WARN] Error in client.NewPoint: %s\n", err)
+	}
+	bp.AddPoint(pt)
+
+	// Write the batch
+	if err := ic.Write(bp); err != nil {
+		log.Printf("[WARN] Error writing to Influxdb: %s\n", err)
+	}
+}
+
 func main() {
 	log.Printf("Githash: %s\n", githash)
 	log.Printf("Build date: %s\n", buildstamp)
@@ -97,6 +139,8 @@ func main() {
 	log.Println("[INFO] Next up: connecting to InfluxDB.")
 
 	// Create a new HTTPClient
+	// FIXME: I don't like having this outide of logToInfluxDB.  NOt
+	// sure what the best approach would be.
 	ic, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     influxAddr,
 		Username: username,
@@ -125,43 +169,6 @@ func main() {
 			continue
 		}
 		log.Printf("[INFO] Read: %s: %f\n", measure.Name, measure.Value)
-		// Create a new point batch
-		bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-			Database:  MyDB,
-			Precision: "s",
-		})
-		if err != nil {
-			log.Println(err)
-		}
-
-		// Create a point and add to batch
-		tags := map[string]string{
-			"location": location,
-			"arduino":  arduino,
-			"lat":      lat,
-			"long":     long,
-		}
-		fields := map[string]interface{}{
-			measure.Name: measure.Value,
-		}
-
-		measureAbbrevs := map[string]string{
-			"Humd": "humidity",
-			"Prcp": "precipitation",
-			"Pres": "pressure",
-			"Temp": "temperature",
-		}
-		pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
-		log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
-		log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
-		if err != nil {
-			log.Printf("[WARN] Error in client.NewPoint: %s\n", err)
-		}
-		bp.AddPoint(pt)
-
-		// Write the batch
-		if err := ic.Write(bp); err != nil {
-			log.Printf("[WARN] Error writing to Influxdb: %s\n", err)
-		}
+		logToInfluxDB(ic, measure)
 	}
 }
