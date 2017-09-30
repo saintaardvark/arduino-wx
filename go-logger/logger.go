@@ -49,6 +49,7 @@ var incompleteReadErr = fmt.Errorf("Can't find closing '}' -- incomplete read?")
 
 var measure, value string
 
+// SplitLIne spits a string and returns a Measurement struct and err
 func SplitLine(s string) (measure Measurement, err error) {
 	// FIXME: Account for errors in all this
 	m := Measurement{"", 0.0, ""}
