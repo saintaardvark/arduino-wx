@@ -79,6 +79,11 @@ func SplitLine(s string) (measure Measurement, err error) {
 	return m, err
 }
 
+// logToWunderground logs mesurement to Wunderground API
+func (m Measurement) logToWunderground(measure Measurement) error {
+	return nil
+}
+
 // logToInfluxdb send a measurement to an InfluxDB server
 func (m Measurement) logToInfluxDB(ic client.Client, measure Measurement) error {
 	// Create a new point batch
@@ -173,6 +178,9 @@ func main() {
 		log.Printf("[INFO] Read: %s: %f\n", measure.Name, measure.Value)
 		if err = measure.logToInfluxDB(ic, measure); err != nil {
 			log.Printf("[WARN] Probleme logging to InfluxDB: %s", err)
+		}
+		if err = measure.logToWunderground(measure); err != nil {
+			log.Printf("[WARN] Probleme logging to Wunderground: %s", err)
 		}
 	}
 }
