@@ -18,6 +18,10 @@ const (
 	MyDB       = "weather"
 	username   = "weather"
 	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
+	arduino    = "node1"
+	location   = "BBY"
+	lat        = "49.284"
+	long       = "-123.021"
 )
 
 var (
@@ -132,10 +136,10 @@ func main() {
 
 		// Create a point and add to batch
 		tags := map[string]string{
-			"location": "BBY",
-			"arduino":  "node1",
-			"lat":      "49.284",
-			"long":     "-123.021",
+			"location": location,
+			"arduino":  arduino,
+			"lat":      lat,
+			"long":     long,
 		}
 		fields := map[string]interface{}{
 			measure.Name: measure.Value,
