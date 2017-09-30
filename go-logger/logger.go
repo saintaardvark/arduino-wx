@@ -80,14 +80,14 @@ func SplitLine(s string) (measure Measurement, err error) {
 }
 
 // logToInfluxdb send a measurement to an InfluxDB server
-func logToInfluxDB(ic client.Client, measure Measurement) {
+func (m Measurement) logToInfluxDB(ic client.Client, measure Measurement) error {
 	// Create a new point batch
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Database:  MyDB,
 		Precision: "s",
 	})
 	if err != nil {
-		log.Println(err)
+		return fmt.Errorf("Error creating InfluxDB batch: %s", err)
 	}
 
 	// Create a point and add to batch
@@ -111,14 +111,15 @@ func logToInfluxDB(ic client.Client, measure Measurement) {
 	log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
 	log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
 	if err != nil {
-		log.Printf("[WARN] Error in client.NewPoint: %s\n", err)
+		return fmt.Errorf("Error in client.NewPoint: %s\n", err)
 	}
 	bp.AddPoint(pt)
 
 	// Write the batch
 	if err := ic.Write(bp); err != nil {
-		log.Printf("[WARN] Error writing to Influxdb: %s\n", err)
+		return fmt.Errorf("Error writing to Influxdb: %s\n", err)
 	}
+	return nil
 }
 
 func main() {
@@ -170,6 +171,8 @@ func main() {
 			continue
 		}
 		log.Printf("[INFO] Read: %s: %f\n", measure.Name, measure.Value)
-		logToInfluxDB(ic, measure)
+		if err = measure.logToInfluxDB(ic, measure); err != nil {
+			log.Printf("[WARN] Probleme logging to InfluxDB: %s", err)
+		}
 	}
 }
