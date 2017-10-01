@@ -128,3 +128,46 @@ main.main()
         /home/pi/software/arduino-wx/go-logger/logger.go:159 +0xb00
 
     #+END_QUOTE
+* <2017-07-23 Sun> - Wunderground
+  - http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
+  - See password file for notes
+  - looks like it should be pretty easy
+* <2017-09-30 Sat>
+  - heh, two months later...
+  - dummy method in place right now
+  - wondering if there's some way to refactor this. my notes:
+    #+BEGIN_SRC go
+      +// FIXME: I don't like having client initialization (eg: creation of
+      +// InfluxDB client) outide of the logging function (eg: it's in
+      +// main()).  Maybe the best way to do this is create a map of Logger
+      +// structs.  Logger struct could look like this:
+      +
+      +type Logger struct {
+      +   Name   string
+      +   Client *interface{}
+      +   Logger *interface{}
+      +}
+      +
+      +// and then:
+      +var Loggers []Logger
+      +
+      +// and then w/in each function, something like:
+      +func (m Measurement) logToExample(measure Measurement) error {
+      +   if something.Client == nil {
+      +       // initialize client
+      +   }
+      +   // do stuff
+      +   return nil
+      +}
+      +
+      +// or maybe what I want is different -- like a Logger struct has a returnClient method.
+      +
+      +type Logger2 interface {
+      +   Name() string
+      +}
+      +
+      +func (l Logger2) getClient() interface{} {
+      +   // ...
+      +}
+
+    #+END_SRC
