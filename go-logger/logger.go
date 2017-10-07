@@ -82,14 +82,14 @@ func main() {
 
 	var influx influxLogger
 	if err := influx.init(); err != nil {
-		log.Fatal("[FATAL]: Can't log to InfluxDB")
+		log.Fatalf("[FATAL]: Can't log to InfluxDB: %s", err.Error())
 	} else {
 		allLoggers = append(allLoggers, influx)
 	}
 
 	var wunder wundergroundLogger
 	if err := wunder.init(); err != nil {
-		log.Printf("[WARN] Can't log to wunderground")
+		log.Printf("[WARN] Can't log to wunderground: %s", err.Error())
 	} else {
 		allLoggers = append(allLoggers, wunder)
 	}
