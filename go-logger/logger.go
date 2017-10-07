@@ -5,18 +5,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/influxdata/influxdb/client/v2"
 	"github.com/tarm/serial"
 )
 
 const (
-	MyDB       = "weather"
-	username   = "weather"
+	influxDB   = "weather"
+	influxUser = "weather"
 	influxAddr = "https://home.saintaardvarkthecarpeted.com:26472"
 	arduino    = "node1"
 	location   = "BBY"
@@ -37,17 +35,11 @@ type Measurement struct {
 
 // This lets me compare directly in the test file.  See:
 // https://stackoverflow.com/questions/36091610/comparing-errors-in-go
-var colonErr = fmt.Errorf("Can't find colon in line, don't know how to split it")
-var incompleteReadErr = fmt.Errorf("Can't find closing '}' -- incomplete read?")
-
-// type Message struct {
-// 	Name         string
-// 	Measurements []*Measurement
-// }
-
-// var readout Message
-
-var measure, value string
+var (
+	colonErr          = fmt.Errorf("Can't find colon in line, don't know how to split it")
+	incompleteReadErr = fmt.Errorf("Can't find closing '}' -- incomplete read?")
+	measure, value    string
+)
 
 // SplitLIne spits a string and returns a Measurement struct and err
 func SplitLine(s string) (measure Measurement, err error) {
@@ -79,61 +71,29 @@ func SplitLine(s string) (measure Measurement, err error) {
 	return m, err
 }
 
-// logToWunderground logs mesurement to Wunderground API
-func (m Measurement) logToWunderground(measure Measurement) error {
-	return nil
-}
-
-// logToInfluxdb send a measurement to an InfluxDB server
-func (m Measurement) logToInfluxDB(ic client.Client, measure Measurement) error {
-	// Create a new point batch
-	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
-		Database:  MyDB,
-		Precision: "s",
-	})
-	if err != nil {
-		return fmt.Errorf("Error creating InfluxDB batch: %s", err)
-	}
-
-	// Create a point and add to batch
-	tags := map[string]string{
-		"location": location,
-		"arduino":  arduino,
-		"lat":      lat,
-		"long":     long,
-	}
-	fields := map[string]interface{}{
-		measure.Name: measure.Value,
-	}
-
-	measureAbbrevs := map[string]string{
-		"Humd": "humidity",
-		"Prcp": "precipitation",
-		"Pres": "pressure",
-		"Temp": "temperature",
-	}
-	pt, err := client.NewPoint(measureAbbrevs[measure.Name], tags, fields, time.Now())
-	log.Printf("[DEBUG] measure.Name is %s\n", measure.Name)
-	log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[measure.Name])
-	if err != nil {
-		return fmt.Errorf("Error in client.NewPoint: %s\n", err)
-	}
-	bp.AddPoint(pt)
-
-	// Write the batch
-	if err := ic.Write(bp); err != nil {
-		return fmt.Errorf("Error writing to Influxdb: %s\n", err)
-	}
-	return nil
+func startupLog() {
+	log.Printf("Githash: %s\n", githash)
+	log.Printf("Build date: %s\n", buildstamp)
 }
 
 func main() {
-	log.Printf("Githash: %s\n", githash)
-	log.Printf("Build date: %s\n", buildstamp)
-	influxPass, exists := os.LookupEnv("INFLUXDB_PASS")
-	if exists == false {
-		log.Fatal("[FATAL] Can't proceed without environment var INFLUXDB_PASS!")
+	startupLog()
+	allLoggers := []wxLogger{}
+
+	var influx influxLogger
+	if err := influx.init(); err != nil {
+		log.Fatal("[FATAL]: Can't log to InfluxDB")
+	} else {
+		allLoggers = append(allLoggers, influx)
 	}
+
+	var wunder wundergroundLogger
+	if err := wunder.init(); err != nil {
+		log.Printf("[WARN] Can't log to wunderground")
+	} else {
+		allLoggers = append(allLoggers, wunder)
+	}
+
 	usbdev := "/dev/ttyUSB0"
 	c := &serial.Config{Name: usbdev, Baud: 9600}
 	serialPort, err := serial.OpenPort(c)
@@ -143,20 +103,6 @@ func main() {
 		serialPort, err = serial.OpenPort(c)
 	}
 	reader := bufio.NewReader(serialPort)
-	log.Println("[INFO] Next up: connecting to InfluxDB.")
-
-	// Create a new HTTPClient
-	// FIXME: I don't like having this outide of logToInfluxDB.  NOt
-	// sure what the best approach would be.
-	ic, err := client.NewHTTPClient(client.HTTPConfig{
-		Addr:     influxAddr,
-		Username: username,
-		Password: influxPass,
-	})
-	if err != nil {
-		log.Println(err)
-	}
-
 	log.Println("[INFO] Opened. Next up: looping.")
 	for {
 		log.Println("[DEBUG] About to read...")
@@ -176,11 +122,10 @@ func main() {
 			continue
 		}
 		log.Printf("[INFO] Read: %s: %f\n", measure.Name, measure.Value)
-		if err = measure.logToInfluxDB(ic, measure); err != nil {
-			log.Printf("[WARN] Probleme logging to InfluxDB: %s", err)
-		}
-		if err = measure.logToWunderground(measure); err != nil {
-			log.Printf("[WARN] Probleme logging to Wunderground: %s", err)
+		for _, l := range allLoggers {
+			if err = l.log(measure); err != nil {
+				log.Printf("[WARN] Problem logging to %s: %s", l.name(), err)
+			}
 		}
 	}
 }
