@@ -77,9 +77,10 @@ func (i influxLogger) init() error {
 		Password: pass,
 	})
 	if err != nil {
-		log.Println(err)
+		log.Println("[WARN] Could not set up new InfluxDB client")
 		return err
 	}
+	log.Printf("[DEBUG] Right after setting, i.ic == |%v|\n", i.ic)
 	i._name = "InfluxDB"
 	return nil
 }
