@@ -44,12 +44,12 @@ func (w wundergroundLogger) init() error {
 	var exists bool
 	w.apiKey, exists = os.LookupEnv("WUNDER_APIKEY")
 	if exists == false {
-		return fmt.Errorf("[WARN] Can't log to wunderground without WUNDER_APIKEY environment variable!")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable!")
 	}
 
 	w.endpoint, exists = os.LookupEnv("WUNDER_ENDOINT")
 	if exists == false {
-		return fmt.Errorf("[WARN] Can't log to wunderground without WUNDER_APIKEY environment variable!")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable!")
 	}
 	w._name = "wunderground"
 	return nil
