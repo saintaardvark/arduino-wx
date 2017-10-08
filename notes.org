@@ -171,3 +171,7 @@ main.main()
       +}
 
     #+END_SRC
+* <2017-10-07 Sat>
+  - refactor in wunderground branch
+    - segfaulting when trying to log to InfluxDB. AFAICT, it's because
+      i.ic is empty?  Need more debugging time
