@@ -175,3 +175,22 @@ main.main()
   - refactor in wunderground branch
     - segfaulting when trying to log to InfluxDB. AFAICT, it's because
       i.ic is empty?  Need more debugging time
+    - http://howistart.org/posts/go/1/
+* <2017-10-12 Thu>
+  - More refactoring
+  - added some basic tests for wunderlogger
+    - not actually running yet, not sure why:
+      #+BEGIN_SRC
+21:06 $ go test -v ./...
+=== RUN   TestSplitLineName
+--- PASS: TestSplitLineName (0.00s)
+=== RUN   TestSplitLineValue
+--- PASS: TestSplitLineValue (0.00s)
+=== RUN   TestSplitLineUnits
+--- PASS: TestSplitLineUnits (0.00s)
+=== RUN   TestSplitLineError
+--- PASS: TestSplitLineError (0.00s)
+PASS
+ok  	_/home/aardvark/software/arduino-wx/go-logger	0.005s
+✔ ~/software/arduino-wx/go-logger [wunderground|✚ 2…1⚑ 1]
+      #+END_SRC
