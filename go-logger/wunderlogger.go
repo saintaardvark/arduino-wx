@@ -25,10 +25,10 @@ func (w wundergroundLogger) name() string {
 // logToWunderground logs mesurement to Wunderground API
 func (w wundergroundLogger) log(m Measurement) error {
 	if w.apiKey == "" {
-		return fmt.Errorf("Cannot see API key!")
+		return fmt.Errorf("no API key set")
 	}
 	if w.endpoint == "" {
-		return fmt.Errorf("Cannot see API key!")
+		return fmt.Errorf("no API endpoint set")
 	}
 	now := time.Now().Minute()
 	if now == 0 {
@@ -46,12 +46,12 @@ func (w wundergroundLogger) init() error {
 	var exists bool
 	w.apiKey, exists = os.LookupEnv("WUNDER_APIKEY")
 	if exists == false {
-		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable!")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable")
 	}
 
 	w.endpoint, exists = os.LookupEnv("WUNDER_ENDOINT")
 	if exists == false {
-		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable!")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable")
 	}
 	w._name = "wunderground"
 	return nil

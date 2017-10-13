@@ -76,13 +76,13 @@ func (i influxLogger) log(m Measurement) error {
 	log.Printf("[DEBUG] m.Name is %s\n", m.Name)
 	log.Printf("[DEBUG] Trying to log that under %s\n", measureAbbrevs[m.Name])
 	if err != nil {
-		return fmt.Errorf("Error in client.NewPoint: %s\n", err)
+		return fmt.Errorf("error in client.NewPoint: %s", err)
 	}
 	bp.AddPoint(pt)
 
 	// Write the batch
 	if err := i.ic.Write(bp); err != nil {
-		return fmt.Errorf("Error writing to Influxdb: %s\n", err)
+		return fmt.Errorf("error writing to Influxdb: %s", err)
 	}
 	return nil
 }
