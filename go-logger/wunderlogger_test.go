@@ -19,6 +19,7 @@ var wunderURLTestTable = []struct {
 }
 
 func testBuildURL(t *testing.T) {
+func TestBuildURL(t *testing.T) {
 	for _, test := range wunderURLTestTable {
 		got, err := wl.buildURL(test.input)
 		if test.want != got {
