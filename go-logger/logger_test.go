@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var testTable = []struct {
+var influxTestTable = []struct {
 	input string
 	want  Measurement
 	err   error
@@ -26,7 +26,7 @@ var testTable = []struct {
 }
 
 func TestSplitLineName(t *testing.T) {
-	for _, test := range testTable {
+	for _, test := range influxTestTable {
 		got, err := SplitLine(test.input)
 		if test.want.Name != got.Name {
 			t.Errorf("SplitLine(%v) returned (%v, %v), want (%v, %v)",
@@ -36,7 +36,7 @@ func TestSplitLineName(t *testing.T) {
 }
 
 func TestSplitLineValue(t *testing.T) {
-	for _, test := range testTable {
+	for _, test := range influxTestTable {
 		got, err := SplitLine(test.input)
 		if test.want.Value != got.Value {
 			t.Errorf("SplitLine(%v) returned (%v, %v), want (%v, %v)",
@@ -46,7 +46,7 @@ func TestSplitLineValue(t *testing.T) {
 }
 
 func TestSplitLineUnits(t *testing.T) {
-	for _, test := range testTable {
+	for _, test := range influxTestTable {
 		got, err := SplitLine(test.input)
 		if test.want.Units != got.Units {
 			t.Errorf("SplitLine(%v) returned (%v, %v), want (%v, %v)",
@@ -55,7 +55,7 @@ func TestSplitLineUnits(t *testing.T) {
 	}
 }
 func TestSplitLineError(t *testing.T) {
-	for _, test := range testTable {
+	for _, test := range influxTestTable {
 		got, err := SplitLine(test.input)
 		if test.err != err {
 			t.Errorf("SplitLine(%v) returned (%v, %v), want (%v, %v)",
