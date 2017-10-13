@@ -13,12 +13,12 @@ var testTable = []struct {
 	{"{Temp: 22.70 C}", Measurement{"Temp", 22.7, "C"}, nil},
 	{"{Pres: 1007.03 hP}", Measurement{"Pres", 1007.03, "hP"}, nil},
 	{"{Prcp: 0.00 NA}", Measurement{"Prcp", 0, "NA"}, nil},
-	{"Waiting...", Measurement{"", 0, ""}, incompleteReadErr},
-	{"radio.new", Measurement{"", 0, ""}, incompleteReadErr},
-	{"{Humd", Measurement{"", 0, ""}, incompleteReadErr},
+	{"Waiting...", Measurement{"", 0, ""}, errIncompleteRead},
+	{"radio.new", Measurement{"", 0, ""}, errIncompleteRead},
+	{"{Humd", Measurement{"", 0, ""}, errIncompleteRead},
 	{`
 {Humd: 33.10 %}`, Measurement{"Humd", 33.1, "%"}, nil},
-	{` 
+	{`
 
 {Humd: 33.10 %}`, Measurement{"Humd", 33.1, "%"}, nil},
 	{`failed

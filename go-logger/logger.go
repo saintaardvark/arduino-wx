@@ -37,8 +37,8 @@ type Measurement struct {
 // This lets me compare directly in the test file.  See:
 // https://stackoverflow.com/questions/36091610/comparing-errors-in-go
 var (
-	colonErr          = fmt.Errorf("Can't find colon in line, don't know how to split it")
-	incompleteReadErr = fmt.Errorf("Can't find closing '}' -- incomplete read?")
+	errColon          = fmt.Errorf("can't find colon in line, don't know how to split it")
+	errIncompleteRead = fmt.Errorf("can't find closing '}' -- incomplete read?")
 	measure, value    string
 )
 
@@ -47,10 +47,10 @@ func SplitLine(s string) (measure Measurement, err error) {
 	// FIXME: Account for errors in all this
 	m := Measurement{"", 0.0, ""}
 	if strings.Index(s, "}") < 0 {
-		return m, incompleteReadErr
+		return m, errIncompleteRead
 	}
 	if strings.Index(s, ":") < 0 {
-		return m, colonErr
+		return m, errColon
 	}
 	// Don't include left bracket itself
 	leftBracketPos := strings.Index(s, "{") + 1
