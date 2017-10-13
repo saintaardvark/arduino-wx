@@ -18,6 +18,10 @@ type wundergroundLogger struct {
 	_name    string
 }
 
+func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
+	return "http://slashdot.org", nil
+}
+
 func (w wundergroundLogger) name() string {
 	return w._name
 }
@@ -34,7 +38,7 @@ func (w wundergroundLogger) log(m Measurement) error {
 	if now == 0 {
 		log.Printf("[INFO] Logging to Wunderground")
 	}
-	url, err := buildWunderURL(m)
+	url, err := w.buildURL(m)
 	if err != nil {
 		return err
 	}
@@ -55,8 +59,4 @@ func (w wundergroundLogger) init() error {
 	}
 	w._name = "wunderground"
 	return nil
-}
-
-func buildWunderURL(m Measurement) (string, error) {
-	return "http://slashdot.org", nil
 }
