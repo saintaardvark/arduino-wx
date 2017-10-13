@@ -27,6 +27,7 @@ var (
 	buildstamp = "June 6, 2017"
 )
 
+// Measurement holds information about a single weather reading
 type Measurement struct {
 	Name  string
 	Value float64
@@ -41,7 +42,7 @@ var (
 	measure, value    string
 )
 
-// SplitLIne spits a string and returns a Measurement struct and err
+// SplitLine spits a string and returns a Measurement struct and err
 func SplitLine(s string) (measure Measurement, err error) {
 	// FIXME: Account for errors in all this
 	m := Measurement{"", 0.0, ""}
