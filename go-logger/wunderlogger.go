@@ -16,9 +16,13 @@ type wundergroundLogger struct {
 	apiKey   string
 	endpoint string
 	_name    string
+	id       string
+	pass     string
 }
 
 func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
+	// FIXME: should be a map
+	// case m.Name in "humd" return "humidity"
 	return "http://slashdot.org", nil
 }
 
