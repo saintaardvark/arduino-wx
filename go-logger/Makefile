@@ -5,3 +5,10 @@ build:
 send:
 	GOARCH=arm GOOS=linux go build $(FLAGS)
 	scp go-logger pi@192.168.23.133:~
+
+test:
+	go build -v
+	go test -v
+	go vet
+	golint
+	errcheck
