@@ -23,12 +23,12 @@ type wundergroundLogger struct {
 func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
 	// FIXME: should be a map
 	// case m.Name in "humd" return "humidity"
-	baseURL := "http://weatherstation.wunderground.com/weatherstation/updateweatherstation.php"
+	baseURL := "https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php"
 	creds := fmt.Sprintf("ID=%s&PASSWORD=%s", w.id, w.pass)
 	// FIXME
-	date := "2001-01-01+10%#A32%3A35"
+	date := "dateutc=2001-01-01+10%3A32%3A35"
 	mstring := "humidity=33"
-	suffix := "softwaretype=vws%20version&action=updateraw"
+	suffix := "softwaretype=vws%20versionxx&action=updateraw"
 	wunderURL := fmt.Sprintf("%s?%s&%s&%s&%s", baseURL, creds, date, mstring, suffix)
 	return wunderURL, nil
 }
