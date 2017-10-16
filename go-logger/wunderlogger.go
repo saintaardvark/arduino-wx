@@ -27,10 +27,23 @@ func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
 	creds := fmt.Sprintf("ID=%s&PASSWORD=%s", w.id, w.pass)
 	// FIXME
 	date := "dateutc=2001-01-01+10%3A32%3A35"
-	mstring := "humidity=33"
+	// mstring := "humidity=33"
+	mstring, err := w.buildMeasureString(m)
+	if err != nil {
+		// FIXME: What do we want to return in case we don't log?
+		return "", nil
+	}
 	suffix := "softwaretype=vws%20versionxx&action=updateraw"
 	wunderURL := fmt.Sprintf("%s?%s&%s&%s&%s", baseURL, creds, date, mstring, suffix)
 	return wunderURL, nil
+}
+
+func (w wundergroundLogger) buildMeasureString(m Measurement) (string, error) {
+	wundergroundMap := map[string]string{
+		"Humd": "humidity",
+		"Temp": "tempf",
+	}
+	return fmt.Sprintf("%s=%3.1f", wundergroundMap[m.Name], m.Value), nil
 }
 
 func (w wundergroundLogger) name() string {

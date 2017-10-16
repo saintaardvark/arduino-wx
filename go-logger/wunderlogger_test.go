@@ -19,8 +19,8 @@ var wunderURLTestTable = []struct {
 }{
 	{
 		// FIXME: Add test for 33.1 to make sure I get decimal point
-		Measurement{"Humd", 33, "%"},
-		"https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?ID=saintaardvark&PASSWORD=s3cr3t&dateutc=2001-01-01+10%3A32%3A35&humidity=33&softwaretype=vws%20versionxx&action=updateraw",
+		Measurement{"Humd", 33.1, "%"},
+		"https://weatherstation.wunderground.com/weatherstation/updateweatherstation.php?ID=saintaardvark&PASSWORD=s3cr3t&dateutc=2001-01-01+10%3A32%3A35&humidity=33.1&softwaretype=vws%20versionxx&action=updateraw",
 		nil,
 	},
 }
