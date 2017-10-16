@@ -29,6 +29,7 @@ func (i influxLogger) init() error {
 		Addr:     addr,
 		Username: user,
 		Password: pass,
+		Timeout:  (time.Duration(10) * time.Second),
 	})
 	if err != nil {
 		log.Println("[WARN] Could not set up new InfluxDB client")
