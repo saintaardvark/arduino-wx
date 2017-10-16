@@ -37,3 +37,30 @@ func TestBuildURL(t *testing.T) {
 		}
 	}
 }
+
+var wunderMeasureTestTable = []struct {
+	input Measurement
+	want  string
+	err   error
+}{
+	{
+		Measurement{"Humd", 33.1, "%"},
+		"humidity=33.1",
+		nil,
+	},
+	{
+		Measurement{"Temp", 33.1, "%"},
+		"tempf=91.58",
+		nil,
+	},
+}
+
+func TestBuildMeasureString(t *testing.T) {
+	for _, test := range wunderMeasureTestTable {
+		got, err := wl.buildMeasureString(test.input)
+		if test.want != got {
+			t.Errorf("buildURL(%v) returned (%v, %v), want (%v, %v)",
+				test.input, got, err, test.want, test.err)
+		}
+	}
+}
