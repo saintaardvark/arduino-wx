@@ -50,6 +50,10 @@ var wunderMeasureTestTable = []struct {
 		Measurement{"Temp", 33.1, "%"},
 		"tempf=91.58",
 	},
+	{
+		Measurement{"BadMeasurement", 42.0, "X"},
+		"",
+	},
 }
 
 func TestBuildMeasureString(t *testing.T) {
