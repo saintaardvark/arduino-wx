@@ -24,7 +24,6 @@ type wundergroundLogger struct {
 }
 
 func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
-	// FIXME: should be a map
 	// case m.Name in "humd" return "humidity"
 	creds := fmt.Sprintf("ID=%s&PASSWORD=%s", w.id, w.pass)
 	// FIXME
@@ -41,11 +40,28 @@ func (w wundergroundLogger) buildURL(m Measurement) (string, error) {
 }
 
 func (w wundergroundLogger) buildMeasureString(m Measurement) (string, error) {
-	wundergroundMap := map[string]string{
-		"Humd": "humidity",
-		"Temp": "tempf",
+	switch m.Name {
+	case "Temp":
+		return wunderConvertTemp(m.Value), nil
+	case "Humd":
+		return wunderConvertHumidity(m.Value), nil
+	default:
+		return "", fmt.Errorf("Cannot send %s to Wunderground", m.Name)
 	}
-	return fmt.Sprintf("%s=%3.1f", wundergroundMap[m.Name], m.Value), nil
+}
+
+func wunderConvertTemp(celsius float64) string {
+	fahr := (celsius * 9 / 5) - 32
+	return fmt.Sprintf("tempf=%3.1f", fahr)
+}
+
+func wunderConvertHumidity(humd float64) string {
+	return fmt.Sprintf("humidity=%3.1f", humd)
+}
+
+func wunderConvertPressure(pres float64) string {
+	// Convert to inches of mercury!?
+	return fmt.Sprintf("FIXME")
 }
 
 func (w wundergroundLogger) name() string {
