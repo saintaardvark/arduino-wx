@@ -68,7 +68,7 @@ func (w wundergroundLogger) name() string {
 	return w._name
 }
 
-// logToWunderground logs mesurement to Wunderground API
+// logToWunderground logs measurement to Wunderground API
 func (w wundergroundLogger) log(m Measurement) error {
 	if w.apiKey == "" {
 		return fmt.Errorf("no API key set")
