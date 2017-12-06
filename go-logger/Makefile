@@ -12,3 +12,6 @@ test:
 	go vet
 	golint
 	errcheck
+
+rebuild: build
+	sudo supervisorctl restart piwxlogger && tail -F /var/log/supervisor/piwxlogger.log
