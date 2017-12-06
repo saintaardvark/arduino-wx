@@ -15,7 +15,7 @@ type influxLogger struct {
 	_name string
 }
 
-func (i influxLogger) init() error {
+func (i *influxLogger) init() error {
 	var err error
 	log.Println("[INFO] Setting up InfluxDB client.")
 	pass, exists := os.LookupEnv("INFLUXDB_PASS")
@@ -35,17 +35,17 @@ func (i influxLogger) init() error {
 		log.Println("[WARN] Could not set up new InfluxDB client")
 		return err
 	}
-	log.Printf("[DEBUG] Right after setting, i.ic == |%v|\n", i.ic)
+	// log.Printf("[DEBUG] Right after setting, i.ic == |%v|\n", i.ic)
 	i._name = "InfluxDB"
 	return nil
 }
 
 // logToInfluxdb sends a measurement to an InfluxDB server
-func (i influxLogger) log(m Measurement) error {
-	fmt.Println("[DEBUG] FIXME: Made it here")
-	fmt.Printf("[DEBUG] FIXME: i.pass == %v\n", i.pass)
-	fmt.Printf("[DEBUG] FIXME: i._name == %v\n", i._name)
-	fmt.Printf("[DEBUG] FIXME: i.ic == %v\n", i.ic)
+func (i *influxLogger) log(m Measurement) error {
+	// fmt.Println("[DEBUG] FIXME: Made it here")
+	// fmt.Printf("[DEBUG] FIXME: i.pass == %v\n", i.pass)
+	// fmt.Printf("[DEBUG] FIXME: i._name == %v\n", i._name)
+	// fmt.Printf("[DEBUG] FIXME: i.ic == %v\n", i.ic)
 
 	// Create a new point batch
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
@@ -80,7 +80,6 @@ func (i influxLogger) log(m Measurement) error {
 		return fmt.Errorf("error in client.NewPoint: %s", err)
 	}
 	bp.AddPoint(pt)
-
 	// Write the batch
 	if err := i.ic.Write(bp); err != nil {
 		return fmt.Errorf("error writing to Influxdb: %s", err)
@@ -88,6 +87,6 @@ func (i influxLogger) log(m Measurement) error {
 	return nil
 }
 
-func (i influxLogger) name() string {
+func (i *influxLogger) name() string {
 	return i._name
 }

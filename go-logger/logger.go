@@ -81,7 +81,7 @@ func main() {
 	startupLog()
 	allLoggers := []wxLogger{}
 
-	var influx influxLogger
+	influx := new(influxLogger)
 	if err := influx.init(); err != nil {
 		log.Fatalf("[FATAL]: Can't log to InfluxDB: %s", err.Error())
 	} else {
