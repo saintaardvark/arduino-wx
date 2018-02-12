@@ -58,7 +58,7 @@ func (w wundergroundLogger) name() string {
 }
 
 func wunderConvertTemp(celsius float64) string {
-	fahr := (celsius * 9 / 5) - 32
+	fahr := (celsius * 9 / 5) + 32
 	return fmt.Sprintf("tempf=%3.1f", fahr)
 }
 

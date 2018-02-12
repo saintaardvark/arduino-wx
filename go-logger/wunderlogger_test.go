@@ -48,7 +48,7 @@ var wunderMeasureTestTable = []struct {
 	},
 	{
 		Measurement{"Temp", 33.1, "%"},
-		"tempf=91.58",
+		"tempf=91.6",
 	},
 	{
 		Measurement{"BadMeasurement", 42.0, "X"},
