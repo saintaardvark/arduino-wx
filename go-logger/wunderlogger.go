@@ -21,6 +21,7 @@ var (
 
 type wundergroundLogger struct {
 	endpoint string
+	_name    string
 	id       string
 	pass     string
 }
@@ -50,6 +51,10 @@ func (w wundergroundLogger) buildMeasureString(m Measurement) (string, error) {
 	default:
 		return "", fmt.Errorf("Cannot send %s to Wunderground", m.Name)
 	}
+}
+
+func (w wundergroundLogger) name() string {
+	return w._name
 }
 
 func wunderConvertTemp(celsius float64) string {
@@ -93,6 +98,7 @@ func (w wundergroundLogger) init() error {
 		return fmt.Errorf("Can't log to wunderground without WUNDER_PASS environment variable")
 	}
 	w.id = id
+	w._name = "wunderground"
 	w.endpoint, exists = os.LookupEnv("WUNDER_ENDPOINT")
 	if exists == false {
 		return fmt.Errorf("Can't log to wunderground without WUNDER_ENDPOINT environment variable")
