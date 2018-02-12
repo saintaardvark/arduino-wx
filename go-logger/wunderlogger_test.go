@@ -5,7 +5,6 @@ import (
 )
 
 var wl = wundergroundLogger{
-	apiKey:   "key",
 	endpoint: "https://wunder.example.com",
 	_name:    "test",
 	id:       "saintaardvark",
