@@ -92,11 +92,10 @@ func (w wundergroundLogger) init() error {
 	if exists == false {
 		return fmt.Errorf("Can't log to wunderground without WUNDER_PASS environment variable")
 	}
-
-	w.endpoint, exists = os.LookupEnv("WUNDER_ENDOINT")
 	w.id = id
+	w.endpoint, exists = os.LookupEnv("WUNDER_ENDPOINT")
 	if exists == false {
-		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_ENDPOINT environment variable")
 	}
 	return nil
 }
