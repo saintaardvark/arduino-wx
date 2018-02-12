@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+const (
+	id = "IBURNABY9"
+)
+
 var (
 	wunderClient = &http.Client{
 		Timeout: time.Second * 10,
@@ -17,7 +21,6 @@ var (
 
 type wundergroundLogger struct {
 	endpoint string
-	_name    string
 	id       string
 	pass     string
 }
@@ -63,10 +66,6 @@ func wunderConvertPressure(pres float64) string {
 	return fmt.Sprintf("FIXME")
 }
 
-func (w wundergroundLogger) name() string {
-	return w._name
-}
-
 // logToWunderground logs measurement to Wunderground API
 func (w wundergroundLogger) log(m Measurement) error {
 	if w.pass == "" {
@@ -95,9 +94,9 @@ func (w wundergroundLogger) init() error {
 	}
 
 	w.endpoint, exists = os.LookupEnv("WUNDER_ENDOINT")
+	w.id = id
 	if exists == false {
 		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable")
 	}
-	w._name = "wunderground"
 	return nil
 }
