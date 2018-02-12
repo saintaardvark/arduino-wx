@@ -16,7 +16,6 @@ var (
 )
 
 type wundergroundLogger struct {
-	apiKey   string
 	endpoint string
 	_name    string
 	id       string
@@ -70,8 +69,8 @@ func (w wundergroundLogger) name() string {
 
 // logToWunderground logs measurement to Wunderground API
 func (w wundergroundLogger) log(m Measurement) error {
-	if w.apiKey == "" {
-		return fmt.Errorf("no API key set")
+	if w.pass == "" {
+		return fmt.Errorf("no password set")
 	}
 	if w.endpoint == "" {
 		return fmt.Errorf("no API endpoint set")
@@ -90,9 +89,9 @@ func (w wundergroundLogger) log(m Measurement) error {
 
 func (w wundergroundLogger) init() error {
 	var exists bool
-	w.apiKey, exists = os.LookupEnv("WUNDER_APIKEY")
+	w.pass, exists = os.LookupEnv("WUNDER_PASS")
 	if exists == false {
-		return fmt.Errorf("Can't log to wunderground without WUNDER_APIKEY environment variable")
+		return fmt.Errorf("Can't log to wunderground without WUNDER_PASS environment variable")
 	}
 
 	w.endpoint, exists = os.LookupEnv("WUNDER_ENDOINT")
