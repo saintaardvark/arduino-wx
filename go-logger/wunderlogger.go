@@ -103,5 +103,6 @@ func (w wundergroundLogger) init() error {
 	if exists == false {
 		return fmt.Errorf("Can't log to wunderground without WUNDER_ENDPOINT environment variable")
 	}
+	log.Printf("[INFO] Imma log to Wunderground!")
 	return nil
 }
