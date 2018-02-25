@@ -92,7 +92,12 @@ func main() {
 	if err := wunder.init(); err != nil {
 		log.Printf("[WARN] Can't log to wunderground: %s", err.Error())
 	} else {
+		// FIXME: Why isn't the init() taking care of this?
+		// Arghh: I think I need to be passing around a pointer or something to that init file.
+		log.Printf("[DEBUG] wunder: %+v\n", wunder)
+		wunder._name = "wunderground"
 		allLoggers = append(allLoggers, wunder)
+
 	}
 
 	usbdev := "/dev/ttyUSB0"
