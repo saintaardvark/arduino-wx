@@ -1,0 +1,19 @@
+* [2020-03-09 Mon] Influxdb client
+  - Fell down a bit of a rabbit hole here...
+  - The old InfluxDB client is no longer available, and I never
+    vendored it.
+    - Github issue here: https://github.com/influxdata/influxdb/issues/11035
+  - That issue points out that the deprecation was announced a while
+    back.
+  - If I really need this, I will have to copy from the Raspberry Pi
+    or some such.
+  - Started digging into the installed version of InfluxDB.
+    - The repo that controls this is at
+      /home/aardvark/software/aardvark_influxdb_grafana on Zombie.
+    - From there I was able to see that I'm running version 0.12,
+      which was released in 2016. OMG.
+    - I'll need to upgrade that at some point....but not now.
+  - As I have a working binary from whenever I compiled this last, I'm
+    going to cut my losses and try adding that.
+  - goal, btw, is to have this running on raspberry pi at home via
+    Balena, which means running in Docker.
