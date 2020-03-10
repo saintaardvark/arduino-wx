@@ -194,3 +194,26 @@ PASS
 ok  	_/home/aardvark/software/arduino-wx/go-logger	0.005s
 ✔ ~/software/arduino-wx/go-logger [wunderground|✚ 2…1⚑ 1]
       #+END_SRC
+* [2020-02-05 Wed]
+  - Wow, been a while!
+  - Finally rebuilding this.  Hardware hopefully a trifle more robust,
+    but we'll see.
+  - Code:
+    - Had to download libraries + Arduino Makefile
+    - Had to copy arduino-1.8.0 and 1.8.2 out of backup to home
+      directory to fix:
+      #+begin_src shell
+mkdir -p build-uno
+make: *** No rule to make target '/home/aardvark/arduino-1.8.0/hardware/arduino/avr/cores/arduino/Arduino.h', needed by 'build-uno/transmitter.ino.o'.  Stop.
+  #+end_src
+    - However, after that I removed them to attempt to fix the next
+      problme, and seemed weren't needed.  Hm.
+    - Set arduio_libs directory in Arduino.mk; see commit
+    - Had to build with Arduino IDE to get around this error:
+      #+BEGIN_SRC sh
+/usr/lib/gcc/avr/9.2.0/../../../../avr/bin/ld: build-uno/libcore.a(Adafruit_BMP085_U.cpp.o): in function `Adafruit_BMP085_Unified::~Adafruit_BMP085_Unified()':
+Adafruit_BMP085_U.cpp:(.text._ZN23Adafruit_BMP085_UnifiedD0Ev[Adafruit_BMP085_Unified::~Adafruit_BMP085_Unified()]+0x4): undefined reference to `operator delete(void*, unsigned int)'
+collect2: error: ld returned 1 exit status
+make: *** [../Arduino.mk:1416: build-uno/transmitter.elf] Error 1
+      #+END_SRC
+    - but worked a treat and logging now!
