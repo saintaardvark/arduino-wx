@@ -15,3 +15,9 @@ test:
 
 rebuild: build
 	sudo supervisorctl restart piwxlogger && tail -F /var/log/supervisor/piwxlogger.log
+
+docker: build-docker
+	docker run -it arduino-wx-go-logger /bin/sh
+
+build-docker:
+	docker build --tag arduino-wx-go-logger:latest .
