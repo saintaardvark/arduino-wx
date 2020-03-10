@@ -17,3 +17,5 @@
     going to cut my losses and try adding that.
   - goal, btw, is to have this running on raspberry pi at home via
     Balena, which means running in Docker.
+  - Cloning repo from the Raspberry Pi; I need to change the USB
+    device (or better, not hardcode it into the code)
