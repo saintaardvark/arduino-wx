@@ -68,10 +68,11 @@ func (i *influxLogger) log(m Measurement) error {
 	}
 
 	measureAbbrevs := map[string]string{
-		"Humd": "humidity",
-		"Prcp": "precipitation",
-		"Pres": "pressure",
-		"Temp": "temperature",
+		"Humd":    "humidity",
+		"Prcp":    "precipitation",
+		"Pres":    "pressure",
+		"Temp":    "temperature",
+		"PrcpMtr": "precipitation_meter",
 	}
 	pt, err := client.NewPoint(measureAbbrevs[m.Name], tags, fields, time.Now())
 	log.Printf("[DEBUG] m.Name is %s\n", m.Name)
