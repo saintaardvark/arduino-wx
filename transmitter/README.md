@@ -6,7 +6,8 @@
 
 # Diagram
 
-- Precip detector (A0 pin on sensor): A0
+- Precipitation detector (A0 pin on sensor): A0
+- Precipitation meter reed switch: Pin 3
 - Humidity: Pin 2
 - Transmitter: Pin 11
 - BMP180 (Barometer) SCL: A5

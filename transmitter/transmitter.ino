@@ -37,6 +37,26 @@ sensors_event_t event;
 /* Uncomment if you have precip sensor */
 #define HAVE_PRECIP 1
 
+/* Uncomment if you have a precipitation *meter* */
+#define HAVE_PRCPMTR 1
+
+#ifdef HAVE_PRCPMTR
+/* For Unos, only pins 2 and 3 can do interrupts */
+#define PRCPMTR_PIN 3
+int prcpPushCounter = 0;
+
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 200;   // the debounce time; increase if the output flickers
+volatile long PrcpMtrCount = 0;
+void PrcpMtrISR() {
+        if ((millis() - lastDebounceTime) > debounceDelay) {
+                lastDebounceTime = millis();
+                PrcpMtrCount++;
+        }
+}
+
+#endif
+
 // Humidity sensor
 #include "DHT.h"
 
@@ -106,6 +126,11 @@ void setup() {
         Serial.println("dht.begin");
         dht.begin();
 
+#ifdef HAVE_PRCPMTR
+        pinMode(PRCPMTR_PIN, INPUT);
+        attachInterrupt(digitalPinToInterrupt(PRCPMTR_PIN), PrcpMtrISR, FALLING);
+        Serial.println("prcpmtr.begin");
+#endif
 
         /* BMP init */
 
@@ -183,6 +208,13 @@ void loop() {
         transmit(build_msg(precip_data));
 #endif  /* HAVE_PRECIP */
 
+#ifdef HAVE_PRCPMTR
+        SensorData prcp_mtr;
+        prcp_mtr.name = "PrcpMtr";
+        prcp_mtr.units = "mm";
+        prcp_mtr.value = PrcpMtrCount;
+        transmit(build_msg(prcp_mtr));
+#endif
 
         transmit(final_msg_string);
         Serial.println(final_msg_string);
