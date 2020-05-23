@@ -1,22 +1,9 @@
 /* -*-c-basic-offset:8; indent-tabs-mode:nil -*- */
 
 #include <SPI.h>
-#include "RF24.h"
 #include <Adafruit_Sensor.h>
 
 /*
-
-  Okay.  So:
-
-  When using 433 MHz, I was building up one string with everything,
-  and transmitting that.  When I switched to 2.4HGz, I thought I could
-  do the same -- but it turns out that there's a max payload size of
-  32 bytes
-  (https://arduino.stackexchange.com/questions/8185/increasing-payload-size-above-32-bytes-using-nrf24l01).
-
-  Thus, change o' plan: we now transmit each measurement separately,
-  and ensure a reasonable payload size.
-
   Format of message:
   {Temp: 19.30 C}
 
@@ -30,6 +17,8 @@
 
   Total: 19 chars
 
+  This is left over from previous attempts to transmit this via
+  radio.
 */
 #define MAX_PAYLOAD_LEN 66
 
@@ -50,8 +39,6 @@ sensors_event_t event;
 
 // Humidity sensor
 #include "DHT.h"
-/* Hardware configuration: Set up nRF24L01 radio on SPI bus plus pins 7 & 8 */
-RF24 radio(7,8);
 
 byte addresses[][6] = {"1Node","2Node"};
 
@@ -103,17 +90,11 @@ void flashyflashy() {
 }
 
 void transmit(String msg) {
-        radio.stopListening();
         /* See https://forum.arduino.cc/index.php?topic=341963.0 */
         char payload[MAX_PAYLOAD_LEN];
         msg.toCharArray(payload, MAX_PAYLOAD_LEN);
         Serial.println(msg);
         flashyflashy();
-        if (!radio.write(&payload, strlen(payload))){
-                Serial.println(F("failed"));
-        }
-        flashyflashy();
-        radio.startListening();
 }
 
 void setup() {
@@ -125,24 +106,6 @@ void setup() {
         Serial.println("dht.begin");
         dht.begin();
 
-        /* NRF24L01 init */
-        Serial.println("radio.begin");
-        radio.begin();
-        radio.setPayloadSize(MAX_PAYLOAD_LEN);
-        /*
-          Set the PA Level low to prevent power supply related issues.
-          Since this is a getting_started sketch, and the likelihood
-          of close proximity of the devices,  RF24_PA_MAX is default.
-
-          FIXME: Refactor to make the addresses clearer.
-        */
-
-        radio.setPALevel(RF24_PA_LOW);
-        debug("Setting up pipes");
-        debug("Writing to 1, reading from 0");
-        radio.openWritingPipe(addresses[1]);
-        radio.openReadingPipe(1, addresses[0]);
-        radio.startListening();
 
         /* BMP init */
 
@@ -219,27 +182,6 @@ void loop() {
         /* node.data[3] = &precip_data;  */
         transmit(build_msg(precip_data));
 #endif  /* HAVE_PRECIP */
-
-        /* node.name = (char*) NODE_ID_STR; */
-        // Doesn't seem to be an easy way to get the NODE_ID out on
-        // the receiving end...
-        /* final_msg_string = "Node: " + String(NODE_ID) + " , "; */
-        /* final_msg_string += "Temp: " + String(temp) + " C , "; */
-
-/*         final_msg_string = "{"; */
-/*         final_msg_string += "Tmp " + String(temp) + " C,"; */
-/*         final_msg_string += "Hmd " + String(humid) + " %,"; */
-
-/* #ifdef HAVE_BMP */
-/*         final_msg_string += "Prs " + String(event.pressure) + " hP,"; */
-/* #endif  /\* HAVE_BMP *\/ */
-
-/* #ifdef HAVE_PRECIP */
-/*         /\* AU == arbitrary units *\/ */
-/*         final_msg_string += "Prc " + String(precip) + " AU,"; */
-/* #endif  /\* HAVE_PRECIP *\/ */
-
-/*         final_msg_string += "}"; */
 
 
         transmit(final_msg_string);
