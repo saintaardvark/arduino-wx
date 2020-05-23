@@ -1,3 +1,5 @@
+/* -*-c-basic-offset:8; indent-tabs-mode:nil -*- */
+
 #include <SPI.h>
 #include "RF24.h"
 #include <Adafruit_Sensor.h>
