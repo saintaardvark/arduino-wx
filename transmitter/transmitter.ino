@@ -219,6 +219,8 @@ void loop() {
         prcp_mtr.units = "mm";
         prcp_mtr.value = PrcpMtrCount;
         transmit(build_msg(prcp_mtr));
+        // Reset after we transmit.
+        PrcpMtrCount = 0;
 #endif
 
         transmit(final_msg_string);
