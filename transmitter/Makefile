@@ -13,8 +13,14 @@ ARDMK_DIR   = /home/pi/external_src/Arduino-Makefile
 endif
 BOARD_TAG    = uno
 MONITOR_PORT = /dev/ttyUSB0
-ARDUINO_LIBS =  DHT-sensor-library-master Adafruit_BMP085_Unified-master Wire Adafruit_Sensor-master RF24-master SPI
-
+ARDUINO_LIBS =  DHT-sensor-library-master \
+		Adafruit_BMP085_Unified-master \
+		Wire \
+		Adafruit_Sensor-master \
+		RF24-master \
+		SPI \
+		OneWire-master \
+		Arduino-Temperature-Control-Library-master
 
 include $(ARDMK_DIR)/Arduino.mk
 
