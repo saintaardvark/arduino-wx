@@ -127,7 +127,7 @@ void setup() {
         dht.begin();
 
 #ifdef HAVE_PRCPMTR
-        pinMode(PRCPMTR_PIN, INPUT);
+        pinMode(PRCPMTR_PIN, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(PRCPMTR_PIN), PrcpMtrISR, FALLING);
         Serial.println("prcpmtr.begin");
 #endif
@@ -143,6 +143,11 @@ void setup() {
                 while(1);
         }
 #endif  /* HAVE_BMP */
+
+#ifdef HAVE_PRECIP
+	/* Try the pullup pins */
+	pinMode(PRECIP_PIN, INPUT_PULLUP);
+#endif
 
         /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
