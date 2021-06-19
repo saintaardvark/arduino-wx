@@ -9,6 +9,9 @@
 - [Benoit Blanchon's Arduino JSON library][6]
 - [RF24][8]
 
+- [Arduino Temperature Control Library][9]
+- [OneWire][10] (though I should look at https://github.com/pstolarz/OneWireNg)
+
 # Building
 
 ```
@@ -30,3 +33,5 @@ make upload
 [6]: https://github.com/bblanchon/ArduinoJson
 [7]: https://github.com/adafruit/Adafruit_BMP085_Unified
 [8]: https://github.com/nRF24/RF24
+[9]: https://github.com/milesburton/Arduino-Temperature-Control-Library
+[10]: https://github.com/PaulStoffregen/OneWire
