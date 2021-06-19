@@ -57,6 +57,61 @@ void PrcpMtrISR() {
 
 #endif
 
+/* Uncomment if you have the temperature sensors. */
+/* #define HAVE_1WIRE_TEMP_SENSORS 0 */
+
+#ifdef HAVE_1WIRE_TEMP_SENSORS
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+/* Use pin 2 for data */
+#define ONE_WIRE_BUS 2          /* FIXME: will need to move the
+                                   humidity detector away from pin 2 -
+                                   it doesn't need an interrupt. */
+
+/* Set up a oneWire instance to communicte with any OneWire devices. */
+OneWire oneWire(ONE_WIRE_BUS);
+
+/* Pass our oneWire reference to Dallas Temperature */
+DallasTemperature sensors(&oneWire);
+
+String msg = "";
+volatile short i;
+
+/* https://www.hacktronics.com/Tutorials/arduino-1-wire-address-finder.html */
+void discoverOneWireDevices(void) {
+        byte i;
+        byte present = 0;
+        /* byte data[12]; */
+        byte addr[8];
+
+        Serial.print("Looking for 1-Wire devices...\n\r");
+        while(oneWire.search(addr)) {
+                present++;
+                Serial.print("\n\rFound \'1-Wire\' device with address:\n\r");
+                for( i = 0; i < 8; i++) {
+                        Serial.print("0x");
+                        if (addr[i] < 16) {
+                                Serial.print('0');
+                        }
+                        Serial.print(addr[i], HEX);
+                        if (i < 7) {
+                                Serial.print(", ");
+                        }
+                }
+                if ( OneWire::crc8( addr, 7) != addr[7]) {
+                        Serial.print("CRC is not valid!\n");
+                        return;
+                }
+        }
+        Serial.println("Final count:");
+        Serial.println(present);
+        Serial.print("\n\r\n\rThat's it.\r\n");
+        oneWire.reset_search();
+        return;
+}
+#endif  /* HAVE_1WIRE_TEMP_SENSORS */
+
 // Humidity sensor
 #include "DHT.h"
 
@@ -144,6 +199,12 @@ void setup() {
         }
 #endif  /* HAVE_BMP */
 
+#ifdef HAVE_1WIRE_TEMP_SENSORS
+        sensors.begin();
+        discoverOneWireDevices();
+        Serial.println("1wire.begin")
+#endif  /* HAVE_1WIRE_TEMP_SENSORS */
+
         /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
         Serial.println("LET'S DO THIS!");
@@ -214,6 +275,25 @@ void loop() {
         prcp_mtr.units = "mm";
         prcp_mtr.value = PrcpMtrCount;
         transmit(build_msg(prcp_mtr));
+#endif
+
+#ifdef HAVE_1WIRE_TEMP_SENSORS
+        sensors.requestTemperatures();
+
+        /* I happen to know I have 3 sensors. */
+        for (i=0; i < 3; i++) {
+                /* Yep, ugly; see https://www.e-tinkers.com/2020/01/do-you-know-arduino-sprintf-and-floating-point/ */
+                msg = "{soil_temp_";
+                /* Note: I'm marking the sensors with nail polish, and using
+                   number of dots to show which sensor is which.  Zero dots won't
+                   work, so I'm incrementing the display name by one. */
+                msg += i + 1;
+                msg += ": ";
+                /* Why `byIndex`? Because you can have more than one DS18B20 on the same bus */
+                msg += sensors.getTempCByIndex(i);
+                msg += " C}";
+                Serial.println(msg);
+        }
 #endif
 
         transmit(final_msg_string);
