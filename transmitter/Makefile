@@ -2,10 +2,12 @@
 # BOARD_SUB    = atmega2560
 # MONITOR_PORT = /dev/ttyACM0
 
-ifeq ($$USER, "aardvark")
+ifeq ($(USER), aardvark)
+$(info I see user aardvark, adjusting accordingly)
 ARDUINO_DIR  = /home/aardvark/arduino-1.8.12
 ARDMK_DIR     = /home/aardvark/dev/arduino/Arduino-Makefile
-else # ifeq ($$USER, "pi")
+else ifeq ($(USER), pi)
+$(info I see user pi, adjusting accordingly)
 ARDUINO_DIR = /home/pi/arduino-1.8.2
 ARDMK_DIR   = /home/pi/external_src/Arduino-Makefile
 endif
@@ -22,4 +24,6 @@ include $(ARDMK_DIR)/Arduino.mk
 # https://github.com/sudar/Arduino-Makefile/blob/master/arduino-mk-vars.md
 CXXFLAGS += -fno-threadsafe-statics
 
+ifeq ($(USER), pi)
 include ../Arduino.mk
+endif
