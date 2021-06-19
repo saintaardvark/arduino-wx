@@ -58,14 +58,14 @@ void PrcpMtrISR() {
 #endif
 
 /* Uncomment if you have the temperature sensors. */
-/* #define HAVE_1WIRE_TEMP_SENSORS 0 */
+#define HAVE_1WIRE_TEMP_SENSORS 1
 
 #ifdef HAVE_1WIRE_TEMP_SENSORS
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
 /* Use pin 2 for data */
-#define ONE_WIRE_BUS 2          /* FIXME: will need to move the
+#define ONE_WIRE_BUS 4          /* FIXME: will need to move the
                                    humidity detector away from pin 2 -
                                    it doesn't need an interrupt. */
 
@@ -207,7 +207,7 @@ void setup() {
 #ifdef HAVE_1WIRE_TEMP_SENSORS
         sensors.begin();
         discoverOneWireDevices();
-        Serial.println("1wire.begin")
+        Serial.println("1wire.begin");
 #endif  /* HAVE_1WIRE_TEMP_SENSORS */
 
 
