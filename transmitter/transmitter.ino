@@ -87,7 +87,7 @@ struct NodeData {
 #define NODE_ID          3
 NodeData node;
 
-#define SLEEPYTIME 10000
+#define SLEEPYTIME 30000
 
 /* Uncomment for helpful debug messages */
 #define DEBUGGING 1
