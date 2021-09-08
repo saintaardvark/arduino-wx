@@ -119,7 +119,7 @@ byte addresses[][6] = {"1Node","2Node"};
 
 String final_msg_string;
 
-#define DHTPIN 2     // what digital pin we're connected to
+#define DHTPIN 5     // what digital pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
