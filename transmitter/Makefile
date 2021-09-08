@@ -1,6 +1,6 @@
 # BOARD_TAG    = mega
 # BOARD_SUB    = atmega2560
-# MONITOR_PORT = /dev/ttyACM0
+MONITOR_PORT = /dev/USB0
 
 ifeq ($(USER), aardvark)
 $(info I see user aardvark, adjusting accordingly)
@@ -10,9 +10,9 @@ else ifeq ($(USER), pi)
 $(info I see user pi, adjusting accordingly)
 ARDUINO_DIR = /home/pi/arduino-1.8.2
 ARDMK_DIR   = /home/pi/external_src/Arduino-Makefile
+MONITOR_PORT = /dev/weatherstation
 endif
 BOARD_TAG    = uno
-MONITOR_PORT = /dev/ttyUSB0
 ARDUINO_LIBS =  DHT-sensor-library-master \
 		Adafruit_BMP085_Unified-master \
 		Wire \
