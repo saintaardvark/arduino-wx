@@ -20,6 +20,12 @@
   This is left over from previous attempts to transmit this via
   radio.
 */
+
+/*
+
+   For a list of pins in use, see README.md
+
+ */
 #define MAX_PAYLOAD_LEN 66
 
 /* Uncomment if you have a BMP sensor */
