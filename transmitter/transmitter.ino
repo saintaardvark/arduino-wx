@@ -24,6 +24,7 @@
 /*
 
    For a list of pins in use, see README.md
+   Note: only pins 2 and 3 support interrupts.
 
  */
 #define MAX_PAYLOAD_LEN 66

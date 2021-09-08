@@ -15,3 +15,5 @@ List of pins in use:
 
 - Precipitation detector: A0 (PRECIP_PIN)
 - Barometer: A4 & A5 (SDA, SCL)
+
+**Note: only pins 2 and 3 support interrupts.**
