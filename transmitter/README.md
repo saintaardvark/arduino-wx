@@ -6,10 +6,12 @@
 
 # Diagram
 
-- Precipitation detector (A0 pin on sensor): A0
-- BMP180 (Barometer) SDA: A4
-- BMP180 (Barometer) SCL: A5
+List of pins in use:
 
-- Humidity: Pin 2
-- Precipitation meter reed switch: Pin 3
+- Humidity/temp pin: 2 (DHTPIN)
+- Precipitation Meter: 3 (PRCPMTR_PIN 3)
+- Onewire bus: 4 (ONE_WIRE_BUS)
 - Transmitter: Pin 11
+
+- Precipitation detector: A0 (PRECIP_PIN)
+- Barometer: A4 & A5 (SDA, SCL)
