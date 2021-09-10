@@ -8,9 +8,10 @@
 
 List of pins in use:
 
-- Humidity/temp pin: 2 (DHTPIN)
+
 - Precipitation Meter: 3 (PRCPMTR_PIN 3)
 - Onewire bus: 4 (ONE_WIRE_BUS)
+- Humidity/temp pin: 5 (DHTPIN)
 - Transmitter: Pin 11
 
 - Precipitation detector: A0 (PRECIP_PIN)
