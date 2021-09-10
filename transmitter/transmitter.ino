@@ -202,7 +202,6 @@ void setup() {
         if(!bmp.begin()) {
                 /* There was a problem detecting the BMP085 ... check your connections */
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
-                while(1);
         }
 #endif  /* HAVE_BMP */
 
