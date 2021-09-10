@@ -90,12 +90,12 @@ Precipitation meter begin
 #define PRCPMTR_PIN 3
 int prcpPushCounter = 0;
 
-unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long debounceDelay = 200;   // the debounce time; increase if the output flickers
+unsigned long lastPrcpMtrDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long prcpMtrDebounceDelay = 200;   // the debounce time; increase if the output flickers
 volatile long PrcpMtrCount = 0;
 void PrcpMtrISR() {
-        if ((millis() - lastDebounceTime) > debounceDelay) {
-                lastDebounceTime = millis();
+        if ((millis() - lastPrcpMtrDebounceTime) > prcpMtrDebounceDelay) {
+                lastPrcpMtrDebounceTime = millis();
                 PrcpMtrCount++;
         }
 }
@@ -198,6 +198,46 @@ DHT sensor end
 **************
 */
 
+/*
+***********************
+Anemometer sensor begin
+***********************
+*/
+
+#define HAVE_ANEMOMETER 1
+
+#ifdef HAVE_ANEMOMETER
+
+# define hallPin 2
+
+unsigned long lastAnemometerDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long anemometerDebounceDelay = 200;   // the debounce time; increase if the output flickers
+float avgAnemometerTime = 0;
+
+//
+volatile long anemometerRotationCount = 0;
+volatile long anemometerDetectorTime = 0;
+volatile long anemometerRPM = 0;
+unsigned long anemometerElapsedTimeSinceLastInterrupt = 0;
+
+void anemometerISR() {
+        anemometerElapsedTimeSinceLastInterrupt = millis() - lastAnemometerDebounceTime;
+        if (anemometerElapsedTimeSinceLastInterrupt > anemometerDebounceDelay) {
+                lastAnemometerDebounceTime = millis();
+                anemometerRotationCount++;
+                anemometerDetectorTime += anemometerElapsedTimeSinceLastInterrupt;
+        }
+}
+
+#endif
+
+/*
+*********************
+Anemometer sensor end
+*********************
+*/
+
+
 
 #define LEDPIN           13
 #define MAX_SENSORS      4
@@ -287,6 +327,14 @@ void init_1wire_temp() {
 #endif  /* HAVE_1WIRE_TEMP_SENSORS */
 }
 
+void init_anemometer() {
+#ifdef HAVE_ANEMOMETER
+        pinMode(hallPin, INPUT);
+        attachInterrupt(digitalPinToInterrupt(hallPin), anemometerISR, FALLING);
+        Serial.println(F("Anemometer initialized!"));
+#endif
+}
+
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
@@ -297,6 +345,7 @@ void setup() {
         init_bmp();
         init_precip();
         init_1wire_temp();
+        init_anemometer();
 
         /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
@@ -407,6 +456,48 @@ void read_and_log_soiltemp() {
 #endif
 }
 
+void read_and_log_anemometer() {
+#ifdef HAVE_ANEMOMETER
+        if (anemometerRotationCount > 0) {
+                msg = "{anemometer_rot_count: ";
+                msg += anemometerRotationCount;
+                msg += "}";
+                Serial.println(msg);
+                msg = "{anemometer_avg_time: ";
+                avgAnemometerTime = anemometerDetectorTime / anemometerRotationCount;
+                msg += avgAnemometerTime;
+                msg += " sec}";
+                Serial.println(msg);
+                /*
+                  Math:
+
+                  - we have three arms, and there's a magnet on each arm
+                  - avgAnemometerTime is the time in msec between detections (ie, when we see a magnetic field go by)
+                  - "time between detections" is time for *one-third* of a rotation,
+                  because we have magnets on three arms
+                  - so average time *per rotation* is avgAnemometerTime * 3
+                  - one minute = 60 s * 1000 ms/s
+                  - revolutions per minute therefore is one minute / (3 * avgAnemometerTime)
+                */
+                anemometerRPM = (60L * 1000L) / (3L * avgAnemometerTime);
+                msg = "{anemometer_rpm: ";
+                msg += anemometerRPM;
+                msg += " rpm }";
+                Serial.println(msg);
+                Serial.println("-----");
+                anemometerRotationCount = 0;
+                anemometerDetectorTime = 0;
+        }
+        SensorData prcp_mtr;
+        prcp_mtr.name = "Anemometer";
+        prcp_mtr.units = "rpm";
+        prcp_mtr.value = anemometerRotationCount;
+        transmit(build_msg(prcp_mtr));
+        // Reset after we transmit.
+        anemometerRotationCount = 0;
+#endif
+}
+
 void loop() {
         read_and_log_humidity();
         read_and_log_temp();
@@ -414,6 +505,7 @@ void loop() {
         read_and_log_prcp();
         read_and_log_prcpmtr();
         read_and_log_soiltemp();
+        read_and_log_anemometer();
         Serial.println();
         delay(SLEEPYTIME);
 }
