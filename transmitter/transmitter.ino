@@ -208,17 +208,16 @@ Anemometer sensor begin
 
 #ifdef HAVE_ANEMOMETER
 
-# define hallPin 2
+#define HALLPIN 2
 
 unsigned long lastAnemometerDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long anemometerDebounceDelay = 200;   // the debounce time; increase if the output flickers
-float avgAnemometerTime = 0;
+volatile float avgAnemometerTime = 0;
 
-//
-volatile long anemometerRotationCount = 0;
-volatile long anemometerDetectorTime = 0;
-volatile long anemometerRPM = 0;
-unsigned long anemometerElapsedTimeSinceLastInterrupt = 0;
+volatile float anemometerRotationCount = 0;
+volatile float anemometerDetectorTime = 0;
+volatile float anemometerRPM = 0;
+volatile float anemometerElapsedTimeSinceLastInterrupt = 0;
 
 void anemometerISR() {
         anemometerElapsedTimeSinceLastInterrupt = millis() - lastAnemometerDebounceTime;
@@ -329,8 +328,8 @@ void init_1wire_temp() {
 
 void init_anemometer() {
 #ifdef HAVE_ANEMOMETER
-        pinMode(hallPin, INPUT);
-        attachInterrupt(digitalPinToInterrupt(hallPin), anemometerISR, FALLING);
+        pinMode(HALLPIN, INPUT);
+        attachInterrupt(digitalPinToInterrupt(HALLPIN), anemometerISR, FALLING);
         Serial.println(F("Anemometer initialized!"));
 #endif
 }
@@ -461,12 +460,15 @@ void read_and_log_anemometer() {
         SensorData anemometer_rpm;
         anemometer_rpm.name = "Anemometer";
         anemometer_rpm.units = "rpm";
+
         SensorData anemometer_rot_count;
         anemometer_rot_count.name = "AnemometerRotCount";
         anemometer_rot_count.units = "rot";
+
         SensorData anemometer_avg_time;
         anemometer_avg_time.name = "AnemometerAvgTime";
         anemometer_avg_time.units = "s";
+
         if (anemometerRotationCount > 0) {
                 anemometer_rot_count.value = anemometerRotationCount;
                 avgAnemometerTime = anemometerDetectorTime / anemometerRotationCount;
