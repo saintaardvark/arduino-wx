@@ -109,9 +109,9 @@ Precipitation meter end
 */
 
 /*
-*******************
-1wire  sensor begin
-*******************
+******************
+1wire sensor begin
+******************
 */
 
 /* Uncomment if you have the temperature sensors. */
