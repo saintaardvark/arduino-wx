@@ -85,17 +85,17 @@ DallasTemperature sensors(&oneWire);
 String msg = "";
 volatile short i;
 volatile float soil_temp;
+volatile short num_onewire_devices = 0;
 
 /* https://www.hacktronics.com/Tutorials/arduino-1-wire-address-finder.html */
 void discoverOneWireDevices(void) {
         byte i;
-        byte present = 0;
         /* byte data[12]; */
         byte addr[8];
 
         Serial.print("Looking for 1-Wire devices...\n\r");
         while(oneWire.search(addr)) {
-                present++;
+                num_onewire_devices++;
                 Serial.print("\n\rFound \'1-Wire\' device with address:\n\r");
                 for( i = 0; i < 8; i++) {
                         Serial.print("0x");
@@ -112,9 +112,8 @@ void discoverOneWireDevices(void) {
                         return;
                 }
         }
-        Serial.println("Final count:");
-        Serial.println(present);
-        Serial.print("\n\r\n\rThat's it.\r\n");
+        Serial.print(F("Final count: "));
+        Serial.println(num_onewire_devices);
         oneWire.reset_search();
         return;
 }
@@ -320,8 +319,7 @@ void read_and_log_soiltemp() {
 #ifdef HAVE_1WIRE_TEMP_SENSORS
         sensors.requestTemperatures();
 
-        /* I happen to know I have 3 sensors. */
-        for (i=0; i < 3; i++) {
+        for (i=0; i < num_onewire_devices; i++) {
                 /* Yep, ugly; see https://www.e-tinkers.com/2020/01/do-you-know-arduino-sprintf-and-floating-point/ */
                 msg = "{soil_temp_";
                 /* Note: I'm marking the sensors with nail polish, and using
