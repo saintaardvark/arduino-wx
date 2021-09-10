@@ -23,10 +23,10 @@
 
 /*
 
-   For a list of pins in use, see README.md
-   Note: only pins 2 and 3 support interrupts.
+  For a list of pins in use, see README.md
+  Note: only pins 2 and 3 support interrupts.
 
- */
+*/
 #define MAX_PAYLOAD_LEN 66
 
 /* Uncomment if you have a BMP sensor */
