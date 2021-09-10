@@ -1,6 +1,6 @@
 # BOARD_TAG    = mega
 # BOARD_SUB    = atmega2560
-MONITOR_PORT = /dev/USB0
+MONITOR_PORT = /dev/ttyUSB0
 
 ifeq ($(USER), aardvark)
 $(info I see user aardvark, adjusting accordingly)
