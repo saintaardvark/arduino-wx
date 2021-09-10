@@ -250,11 +250,8 @@ String build_msg(SensorData reading) {
         return msg;
 }
 
-void loop() {
-
+void read_and_log_humidity() {
         SensorData humid_data;
-        SensorData temp_data;
-
         /*
           You'd *think* you could just assign the result of
           dht.readHumidity() directly to humid_data.value.  Turns out
@@ -267,16 +264,24 @@ void loop() {
         humid_data.value = humid;
 
         transmit(build_msg(humid_data));
+}
 
+void read_and_log_temp() {
+        SensorData temp_data;
+        /*
+          You'd *think* you could just assign the result of
+          dht.readHumidity() directly to humid_data.value.  Turns out
+          that's not the case; if you do that, you just get 0 in
+          there.  Same applies to dht.readTemperature.
+        */
         temp = dht.readTemperature();
         temp_data.name = "Temp";
         temp_data.units = "C";
         temp_data.value = dht.readTemperature();
         transmit(build_msg(temp_data));
+}
 
-        /* node.data[0] = &humid_data; */
-        /* node.data[1] = &temp_data; */
-
+void read_and_log_bmp() {
 #ifdef HAVE_BMP
         SensorData pres_data;
         bmp.getEvent(&event);
@@ -286,7 +291,9 @@ void loop() {
         /* node.data[2] = &pres_data; */
         transmit(build_msg(pres_data));
 #endif  /* HAVE_BMP */
+}
 
+void read_and_log_prcp() {
 #ifdef HAVE_PRECIP
         SensorData precip_data;
         precip_data.name = "Prcp";
@@ -295,7 +302,9 @@ void loop() {
         /* node.data[3] = &precip_data;  */
         transmit(build_msg(precip_data));
 #endif  /* HAVE_PRECIP */
+}
 
+void read_and_log_prcpmtr() {
 #ifdef HAVE_PRCPMTR
         SensorData prcp_mtr;
         prcp_mtr.name = "PrcpMtr";
@@ -305,7 +314,9 @@ void loop() {
         // Reset after we transmit.
         PrcpMtrCount = 0;
 #endif
+}
 
+void read_and_log_soiltemp() {
 #ifdef HAVE_1WIRE_TEMP_SENSORS
         sensors.requestTemperatures();
 
@@ -329,8 +340,15 @@ void loop() {
                 Serial.println(msg);
         }
 #endif
+}
 
-        transmit(final_msg_string);
-        Serial.println(final_msg_string);
+void loop() {
+        read_and_log_humidity();
+        read_and_log_temp();
+        read_and_log_bmp();
+        read_and_log_prcp();
+        read_and_log_prcpmtr();
+        read_and_log_soiltemp();
+        Serial.println();
         delay(SLEEPYTIME);
 }
