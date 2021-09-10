@@ -180,23 +180,20 @@ void transmit(String msg) {
         flashyflashy();
 }
 
-void setup() {
-        Serial.begin(9600);
-        pinMode(LEDPIN, OUTPUT);
-        Serial.println("Reboot");
-
-        /* DHT init */
-        Serial.println("dht.begin");
+void init_dht() {
         dht.begin();
+        Serial.println("DHT sensor initialized!");
+}
 
+void init_prcpmtr() {
 #ifdef HAVE_PRCPMTR
         pinMode(PRCPMTR_PIN, INPUT_PULLUP);
         attachInterrupt(digitalPinToInterrupt(PRCPMTR_PIN), PrcpMtrISR, FALLING);
-        Serial.println("prcpmtr.begin");
+        Serial.println("Precipitation meter initialized!");
 #endif
+}
 
-        /* BMP init */
-
+void init_bmp() {
 #ifdef HAVE_BMP
         Serial.println("Pressure Sensor Test");
         Serial.println("");
@@ -204,19 +201,36 @@ void setup() {
                 /* There was a problem detecting the BMP085 ... check your connections */
                 Serial.print("Ooops, no BMP085 detected ... Check your wiring or I2C ADDR!");
         }
+        Serial.println("BMP sensor initialized!");
 #endif  /* HAVE_BMP */
+}
 
+void init_precip() {
 #ifdef HAVE_PRECIP
         /* Try the pullup pins */
         pinMode(PRECIP_PIN, INPUT_PULLUP);
+        Serial.println("Precipitation detector initialized!");
 #endif
+}
 
+void init_1wire_temp() {
 #ifdef HAVE_1WIRE_TEMP_SENSORS
         sensors.begin();
         discoverOneWireDevices();
-        Serial.println("1wire.begin");
+        Serial.println("1wire temp sensors initalized!");
 #endif  /* HAVE_1WIRE_TEMP_SENSORS */
+}
 
+void setup() {
+        Serial.begin(9600);
+        pinMode(LEDPIN, OUTPUT);
+        Serial.println("Reboot");
+
+        init_dht();
+        init_prcpmtr();
+        init_bmp();
+        init_precip();
+        init_1wire_temp();
 
         /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
