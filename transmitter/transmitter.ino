@@ -458,16 +458,18 @@ void read_and_log_soiltemp() {
 
 void read_and_log_anemometer() {
 #ifdef HAVE_ANEMOMETER
+        SensorData anemometer_rpm;
+        anemometer_rpm.name = "Anemometer";
+        anemometer_rpm.units = "rpm";
+        SensorData anemometer_rot_count;
+        anemometer_rot_count.name = "AnemometerRotCount";
+        anemometer_rot_count.units = "rot";
+        SensorData anemometer_avg_time;
+        anemometer_avg_time.name = "AnemometerAvgTime";
+        anemometer_avg_time.units = "s";
         if (anemometerRotationCount > 0) {
-                msg = "{anemometer_rot_count: ";
-                msg += anemometerRotationCount;
-                msg += "}";
-                Serial.println(msg);
-                msg = "{anemometer_avg_time: ";
+                anemometer_rot_count.value = anemometerRotationCount;
                 avgAnemometerTime = anemometerDetectorTime / anemometerRotationCount;
-                msg += avgAnemometerTime;
-                msg += " sec}";
-                Serial.println(msg);
                 /*
                   Math:
 
@@ -480,21 +482,16 @@ void read_and_log_anemometer() {
                   - revolutions per minute therefore is one minute / (3 * avgAnemometerTime)
                 */
                 anemometerRPM = (60L * 1000L) / (3L * avgAnemometerTime);
-                msg = "{anemometer_rpm: ";
-                msg += anemometerRPM;
-                msg += " rpm }";
-                Serial.println(msg);
-                Serial.println("-----");
-                anemometerRotationCount = 0;
-                anemometerDetectorTime = 0;
+                anemometer_rpm.value = anemometerRPM;
         }
-        SensorData prcp_mtr;
-        prcp_mtr.name = "Anemometer";
-        prcp_mtr.units = "rpm";
-        prcp_mtr.value = anemometerRotationCount;
-        transmit(build_msg(prcp_mtr));
+
+        transmit(build_msg(anemometer_rpm));
+        transmit(build_msg(anemometer_rot_count));
+        transmit(build_msg(anemometer_avg_time));
         // Reset after we transmit.
         anemometerRotationCount = 0;
+        anemometerDetectorTime = 0;
+        anemometerRPM = 0;
 #endif
 }
 
