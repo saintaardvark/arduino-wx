@@ -4,6 +4,13 @@
 #include <Adafruit_Sensor.h>
 
 /*
+  The Arduino Makefile does not support multiple ino
+  files (https://github.com/sudar/Arduino-Makefile/issues/49), and I'm
+  not familiar enough with C/C++ to break things out into separate
+  c/cpp/header files.  For now, I'm sticking with this.
+*/
+
+/*
   Format of message:
   {Temp: 19.30 C}
 
@@ -29,7 +36,12 @@
 */
 #define MAX_PAYLOAD_LEN 66
 
-/* Uncomment if you have a BMP sensor */
+/*
+******************
+BMP sensor begin
+******************
+*/
+
 #define HAVE_BMP 1
 
 # ifdef HAVE_BMP
@@ -41,8 +53,34 @@ Adafruit_BMP085_Unified bmp = Adafruit_BMP085_Unified(10085);
 sensors_event_t event;
 #endif  /* HAVE_BMP */
 
+/*
+**************
+BMP sensor end
+**************
+*/
+
+/*
+**************************
+Precipitation sensor begin
+**************************
+*/
+
 /* Uncomment if you have precip sensor */
 #define HAVE_PRECIP 1
+#define PRECIP_PIN       A0
+
+/*
+************************
+Precipitation sensor end
+************************
+*/
+
+/*
+*************************
+Precipitation meter begin
+*************************
+*/
+
 
 /* Uncomment if you have a precipitation *meter* */
 #define HAVE_PRCPMTR 1
@@ -63,6 +101,18 @@ void PrcpMtrISR() {
 }
 
 #endif
+
+/*
+***********************
+Precipitation meter end
+***********************
+*/
+
+/*
+*******************
+1wire  sensor begin
+*******************
+*/
 
 /* Uncomment if you have the temperature sensors. */
 #define HAVE_1WIRE_TEMP_SENSORS 1
@@ -119,6 +169,18 @@ void discoverOneWireDevices(void) {
 }
 #endif  /* HAVE_1WIRE_TEMP_SENSORS */
 
+/*
+****************
+1wire sensor end
+****************
+*/
+
+/*
+****************
+DHT sensor begin
+****************
+*/
+
 // Humidity sensor
 #include "DHT.h"
 
@@ -130,8 +192,14 @@ String final_msg_string;
 #define DHTTYPE DHT22   // DHT 22  (AM2302), AM2321
 DHT dht(DHTPIN, DHTTYPE);
 
+/*
+**************
+DHT sensor end
+**************
+*/
+
+
 #define LEDPIN           13
-#define PRECIP_PIN       A0
 #define MAX_SENSORS      4
 
 struct SensorData {
