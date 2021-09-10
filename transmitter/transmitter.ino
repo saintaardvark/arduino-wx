@@ -84,6 +84,7 @@ DallasTemperature sensors(&oneWire);
 
 String msg = "";
 volatile short i;
+volatile float soil_temp;
 
 /* https://www.hacktronics.com/Tutorials/arduino-1-wire-address-finder.html */
 void discoverOneWireDevices(void) {
@@ -304,7 +305,12 @@ void loop() {
                 msg += i + 1;
                 msg += ": ";
                 /* Why `byIndex`? Because you can have more than one DS18B20 on the same bus */
-                msg += sensors.getTempCByIndex(i);
+                soil_temp = sensors.getTempCByIndex(i);
+                if (int(soil_temp) == -127) {
+                        msg += "NAN";
+                } else {
+                        msg += soil_temp;
+                }
                 msg += " C}";
                 Serial.println(msg);
         }
