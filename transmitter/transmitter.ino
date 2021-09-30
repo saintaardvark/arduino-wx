@@ -210,21 +210,21 @@ Anemometer sensor begin
 
 #define HALLPIN 2
 
-unsigned long lastAnemometerDebounceTime = 0;  // the last time the output pin was toggled
-unsigned long anemometerDebounceDelay = 200;   // the debounce time; increase if the output flickers
-volatile float avgAnemometerTime = 0;
+volatile float lastAnemometerDebounceTime = 0.0;  // the last time the output pin was toggled
+float anemometerDebounceDelay = 200.0;   // the debounce time; increase if the output flickers
+volatile float avgAnemometerTime = 0.0;
 
-volatile float anemometerRotationCount = 0;
-volatile float anemometerDetectorTime = 0;
-volatile float anemometerRPM = 0;
-volatile float anemometerElapsedTimeSinceLastInterrupt = 0;
+volatile float anemometerTriggerCount = 0.0;
+volatile float anemometerLastDetectorCheckTime = 0.0;
+volatile float anemometerRPM = 0.0;
+volatile float anemometerElapsedTimeSinceLastInterrupt = 0.0;
 
 void anemometerISR() {
-        anemometerElapsedTimeSinceLastInterrupt = millis() - lastAnemometerDebounceTime;
+        anemometerElapsedTimeSinceLastInterrupt = (float)millis() - lastAnemometerDebounceTime;
         if (anemometerElapsedTimeSinceLastInterrupt > anemometerDebounceDelay) {
                 lastAnemometerDebounceTime = millis();
-                anemometerRotationCount++;
-                anemometerDetectorTime += anemometerElapsedTimeSinceLastInterrupt;
+                anemometerTriggerCount++;
+                /* anemometerDetectorTime += anemometerElapsedTimeSinceLastInterrupt; */
         }
 }
 
@@ -458,42 +458,64 @@ void read_and_log_soiltemp() {
 void read_and_log_anemometer() {
 #ifdef HAVE_ANEMOMETER
         SensorData anemometer_rpm;
-        anemometer_rpm.name = "Anemometer";
+        anemometer_rpm.name = "AnemometerRPM";
         anemometer_rpm.units = "rpm";
+        /* Set value to 0 right away -- otherwise, if nothing happens
+           & we don't recalculate, we end up retransmitting the value
+           calculated from last time. */
+        anemometer_rpm.value = 0.0;
 
         SensorData anemometer_rot_count;
         anemometer_rot_count.name = "AnemometerRotCount";
         anemometer_rot_count.units = "rot";
+        anemometer_rot_count.value = 0.0;
 
-        SensorData anemometer_avg_time;
-        anemometer_avg_time.name = "AnemometerAvgTime";
-        anemometer_avg_time.units = "s";
+        // Including this mainly for debugging
+        SensorData anemometer_trigger_count;
+        anemometer_trigger_count.name = "AnemometerTriggerCount";
+        anemometer_trigger_count.units = "tr";
+        anemometer_trigger_count.value = anemometerTriggerCount;
 
-        if (anemometerRotationCount > 0) {
-                anemometer_rot_count.value = anemometerRotationCount;
-                avgAnemometerTime = anemometerDetectorTime / anemometerRotationCount;
-                /*
-                  Math:
+        if (anemometerTriggerCount > 0) {
+                /* Each trigger represents 1/3rd of a rotation */
+                anemometer_rot_count.value = anemometerTriggerCount / 3.0;
+                /* avgAnemometerTime is time for 1/3rd of a rotation */
+                avgAnemometerTime = ((float)millis() - anemometerDetectorTime) / anemometerTriggerCount;
 
-                  - we have three arms, and there's a magnet on each arm
-                  - avgAnemometerTime is the time in msec between detections (ie, when we see a magnetic field go by)
-                  - "time between detections" is time for *one-third* of a rotation,
-                  because we have magnets on three arms
-                  - so average time *per rotation* is avgAnemometerTime * 3
-                  - one minute = 60 s * 1000 ms/s
-                  - revolutions per minute therefore is one minute / (3 * avgAnemometerTime)
-                */
-                anemometerRPM = (60L * 1000L) / (3L * avgAnemometerTime);
-                anemometer_rpm.value = anemometerRPM;
+                /* millis() can wrap around, so make sure our answer above is positive */
+                if (avgAnemometerTime > 0) {
+                        /*
+                          Math:
+
+                          - we have three arms, and there's a magnet on each arm
+
+                          - avgAnemometerTime is the time in msec between
+                          triggers (ie, when we see a magnetic field go by)
+
+                          - "time between detections" is time for *one-third*
+                          of a rotation, because we have magnets on three
+                          arms
+
+                          - so average time *per rotation* is avgAnemometerTime * 3
+
+                          - one minute = 60 s * 1000 ms/s
+
+                          - revolutions per minute therefore is one minute /
+                          (3 * avgAnemometerTime)
+                        */
+                        anemometerRPM = (60.0 * 1000.0) / (3.0 * avgAnemometerTime);
+                        anemometer_rpm.value = anemometerRPM;
+                }
         }
 
         transmit(build_msg(anemometer_rpm));
         transmit(build_msg(anemometer_rot_count));
-        transmit(build_msg(anemometer_avg_time));
+        transmit(build_msg(anemometer_trigger_count));
+
         // Reset after we transmit.
-        anemometerRotationCount = 0;
-        anemometerDetectorTime = 0;
-        anemometerRPM = 0;
+        anemometerTriggerCount = 0.0;
+        anemometerLastDetectorCheckTime = (float) millis();
+        anemometerRPM = 0.0;
 #endif
 }
 
