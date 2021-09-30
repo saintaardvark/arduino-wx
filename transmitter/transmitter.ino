@@ -480,7 +480,7 @@ void read_and_log_anemometer() {
                 /* Each trigger represents 1/3rd of a rotation */
                 anemometer_rot_count.value = anemometerTriggerCount / 3.0;
                 /* avgAnemometerTime is time for 1/3rd of a rotation */
-                avgAnemometerTime = ((float)millis() - anemometerDetectorTime) / anemometerTriggerCount;
+                avgAnemometerTime = ((float)millis() - anemometerLastDetectorCheckTime) / anemometerTriggerCount;
 
                 /* millis() can wrap around, so make sure our answer above is positive */
                 if (avgAnemometerTime > 0) {
