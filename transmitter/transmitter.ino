@@ -411,12 +411,12 @@ void read_and_log_bmp() {
 
           https://en.wikipedia.org/wiki/Segal%27s_law
         */
-        Sensordata bmp_temp;
+        SensorData bmp_temp;
         bmp_temp.name = "BMPTemp";
         bmp_temp.units = "C";
-        float bmp_temp;
-        bmp.getTemperature(&bmp_temp);
-        bmp_temp.value = bmp_temp;
+        float bmp_temp_reading;
+        bmp.getTemperature(&bmp_temp_reading);
+        bmp_temp.value = bmp_temp_reading;
         transmit(build_msg(bmp_temp));
 #endif  /* HAVE_BMP */
 }
