@@ -404,6 +404,20 @@ void read_and_log_bmp() {
         pres_data.value = event.pressure;
         /* node.data[2] = &pres_data; */
         transmit(build_msg(pres_data));
+
+        /*
+          "A man with one watch knows what time it is.  A man with two
+          watches is never sure."
+
+          https://en.wikipedia.org/wiki/Segal%27s_law
+        */
+        Sensordata bmp_temp;
+        bmp_temp.name = "BMPTemp";
+        bmp_temp.units = "C";
+        float bmp_temp;
+        bmp.getTemperature(&bmp_temp);
+        bmp_temp.value = bmp_temp;
+        transmit(build_msg(bmp_temp));
 #endif  /* HAVE_BMP */
 }
 
