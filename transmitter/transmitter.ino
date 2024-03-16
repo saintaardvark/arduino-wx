@@ -237,6 +237,25 @@ Anemometer sensor end
 */
 
 
+/*
+***************************
+Wind direction sensor begin
+***************************
+*/
+
+#define HAVE_WINDIRSENSOR 1
+
+#ifdef HAVE_WINDIRSENSOR
+#define WINDIRSENSOR_PIN A4
+#endif
+
+/*
+***************************
+Wind direction sensor end
+***************************
+*/
+
+
 
 #define LEDPIN           13
 #define MAX_SENSORS      4
@@ -334,6 +353,13 @@ void init_anemometer() {
 #endif
 }
 
+void init_windirsensor() {
+#ifdef HAVE_WINDIRSENSOR
+        pinMode(WINDIRSENSOR_PIN, INPUT);
+        Serial.println(F("Wind direction sensor initialized!"));
+#endif
+}
+
 void setup() {
         Serial.begin(9600);
         pinMode(LEDPIN, OUTPUT);
@@ -345,6 +371,7 @@ void setup() {
         init_precip();
         init_1wire_temp();
         init_anemometer();
+        init_windirsensor();
 
         /* Finally, ready to go! */
         Serial.println("Node ID: " + String(NODE_ID));
@@ -444,6 +471,18 @@ void read_and_log_prcpmtr() {
 #endif
 }
 
+void read_and_log_windirsensor() {
+#ifdef HAVE_WINDIRSENSOR
+        SensorData windir;
+        windir.name = "WinDir";
+        windir.units = "deg";
+        int sensorValue = analogRead(WINDIRSENSOR_PIN);
+        int direction = map(sensorValue, 0, 1023, 0, 360);
+        windir.value = float(direction);
+        transmit(build_msg(windir));
+#endif
+}
+
 void read_and_log_soiltemp() {
 #ifdef HAVE_1WIRE_TEMP_SENSORS
         sensors.requestTemperatures();
@@ -533,6 +572,7 @@ void read_and_log_anemometer() {
 #endif
 }
 
+
 void loop() {
         read_and_log_humidity();
         read_and_log_temp();
@@ -541,6 +581,7 @@ void loop() {
         read_and_log_prcpmtr();
         read_and_log_soiltemp();
         read_and_log_anemometer();
+        read_and_log_windirsensor();
         Serial.println();
         delay(SLEEPYTIME);
 }
