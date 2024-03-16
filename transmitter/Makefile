@@ -4,7 +4,8 @@ MONITOR_PORT = /dev/ttyUSB0
 
 ifeq ($(USER), aardvark)
 $(info I see user aardvark, adjusting accordingly)
-ARDUINO_DIR  = /home/aardvark/arduino-1.8.12
+ARDUINO_DIR  = /home/aardvark/arduino-1.8.19
+# ARDUINO_DIR  = /usr/share/arduino
 ARDMK_DIR     = /home/aardvark/dev/arduino/Arduino-Makefile
 else ifeq ($(USER), pi)
 $(info I see user pi, adjusting accordingly)
